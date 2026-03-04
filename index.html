@@ -439,9 +439,81 @@
             border-color: #e50914;
         }
         .player-main-area { flex: 1; position: relative; background: #000; }
-        .player-container { width: 100%; height: 100%; }
+        .player-container { width: 100%; height: 100%; position: relative; }
         #movie-player { width: 100%; height: 100%; border: none; }
-        .skip-btn { position: absolute; bottom: 100px; right: 10px; background: rgba(0,0,0,0.9); border: 2px solid #e50914; color: white; padding: 8px 16px; border-radius: 40px; display: flex; align-items: center; gap: 6px; cursor: pointer; }
+        
+        /* Skip Buttons */
+        .skip-btn { 
+            position: absolute; 
+            bottom: 120px; 
+            right: 20px; 
+            background: rgba(229, 9, 20, 0.95); 
+            border: 2px solid #fff; 
+            color: white; 
+            padding: 12px 20px; 
+            border-radius: 40px; 
+            display: none;
+            align-items: center; 
+            gap: 8px; 
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            transition: all 0.3s ease;
+            z-index: 100;
+            animation: slideIn 0.3s ease;
+        }
+        .skip-btn:hover { 
+            background: #fff; 
+            color: #e50914; 
+            transform: scale(1.05);
+        }
+        .skip-btn.show { display: flex; }
+        .skip-timer {
+            background: rgba(0,0,0,0.3);
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            min-width: 30px;
+            text-align: center;
+        }
+        @keyframes slideIn {
+            from { transform: translateX(100px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        /* Next Episode Button */
+        .next-episode-btn {
+            position: absolute;
+            bottom: 120px;
+            left: 20px;
+            background: rgba(229, 9, 20, 0.95);
+            border: 2px solid #fff;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 40px;
+            display: none;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            transition: all 0.3s ease;
+            z-index: 100;
+            animation: slideInLeft 0.3s ease;
+        }
+        .next-episode-btn:hover {
+            background: #fff;
+            color: #e50914;
+            transform: scale(1.05);
+        }
+        .next-episode-btn.show { display: flex; }
+        @keyframes slideInLeft {
+            from { transform: translateX(-100px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
         .info-bar { background: #0c0c0c; border-top: 1px solid #222; padding: 1rem; max-height: 40vh; overflow-y: auto; }
         
         .source-buttons { display: flex; gap: 8px; flex-wrap: wrap; margin: 8px 0; }
@@ -528,6 +600,11 @@
             .slide-card { flex: 0 0 92%; height: auto; }
             .slide-poster { height: 200px; }
             .site-footer { font-size: 0.85rem; padding: 0.8rem; }
+            .skip-btn, .next-episode-btn {
+                bottom: 100px;
+                padding: 10px 16px;
+                font-size: 0.8rem;
+            }
         }
     </style>
 </head>
@@ -615,8 +692,28 @@
         <div class="player-main-area">
             <div class="player-container">
                 <iframe id="movie-player" allowfullscreen allow="autoplay; encrypted-media"></iframe>
-                <div id="skip-intro-btn" class="skip-btn" style="display: none;"><i class="fas fa-forward"></i> Skip Intro <span class="skip-timer" id="skip-intro-timer">5s</span></div>
-                <div id="skip-outro-btn" class="skip-btn" style="display: none;"><i class="fas fa-fast-forward"></i> Skip Outro <span class="skip-timer" id="skip-outro-timer">5s</span></div>
+                
+                <!-- Skip Intro Button -->
+                <div id="skip-intro-btn" class="skip-btn">
+                    <i class="fas fa-forward"></i> 
+                    <span>Skip Intro</span> 
+                    <span class="skip-timer" id="skip-intro-timer">5s</span>
+                </div>
+                
+                <!-- Skip Outro Button -->
+                <div id="skip-outro-btn" class="skip-btn">
+                    <i class="fas fa-fast-forward"></i> 
+                    <span>Skip Outro</span> 
+                    <span class="skip-timer" id="skip-outro-timer">5s</span>
+                </div>
+                
+                <!-- Next Episode Button -->
+                <div id="next-episode-btn" class="next-episode-btn">
+                    <i class="fas fa-step-forward"></i>
+                    <span>Next Episode</span>
+                    <span class="skip-timer" id="next-ep-timer">10s</span>
+                </div>
+                
                 <div id="player-error" style="display:none; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); background:#111; padding:1.5rem; border-radius:24px;">
                     <h3 style="color:#e50914;">⚠️ Playback error</h3>
                     <p id="error-text">Source failed.</p>
@@ -686,6 +783,11 @@
     let currentSeason = 1, currentEpisode = 1;
     let currentAudioLang = 'sub';
     let currentSourceIndex = 0;
+    
+    // Episode data for skip functionality
+    let episodeData = [];
+    let maxEpisodes = 0;
+    let skipTimers = {};
 
     const grid = document.getElementById('movies-grid');
     const carouselEl = document.getElementById('latest-carousel');
@@ -990,6 +1092,96 @@
         loadGridContent();
     });
 
+    // Skip functionality timers
+    function clearSkipTimers() {
+        Object.values(skipTimers).forEach(timer => clearInterval(timer));
+        skipTimers = {};
+    }
+
+    function showSkipButton(buttonId, timerId, duration, skipAction) {
+        const btn = document.getElementById(buttonId);
+        const timerSpan = document.getElementById(timerId);
+        let timeLeft = duration;
+        
+        btn.classList.add('show');
+        timerSpan.textContent = timeLeft + 's';
+        
+        skipTimers[timerId] = setInterval(() => {
+            timeLeft--;
+            timerSpan.textContent = timeLeft + 's';
+            
+            if (timeLeft <= 0) {
+                clearInterval(skipTimers[timerId]);
+                btn.classList.remove('show');
+            }
+        }, 1000);
+        
+        btn.onclick = () => {
+            clearInterval(skipTimers[timerId]);
+            btn.classList.remove('show');
+            skipAction();
+        };
+    }
+
+    function hideAllSkipButtons() {
+        document.getElementById('skip-intro-btn').classList.remove('show');
+        document.getElementById('skip-outro-btn').classList.remove('show');
+        document.getElementById('next-episode-btn').classList.remove('show');
+        clearSkipTimers();
+    }
+
+    function setupSkipIntro() {
+        // Show skip intro button 5 seconds after episode starts
+        setTimeout(() => {
+            if (currentModalType === 'tv' || currentIsAnime) {
+                showSkipButton('skip-intro-btn', 'skip-intro-timer', 8, () => {
+                    // Skip to 1:30 (typical intro end time)
+                    // Note: Cannot control iframe video directly, so we simulate by showing message
+                    const player = document.getElementById('movie-player');
+                    // Reload with time parameter if supported by source
+                    const currentSrc = player.src;
+                    // Try to add time parameter to skip intro
+                    player.src = currentSrc + (currentSrc.includes('?') ? '&' : '?') + 'start=90';
+                });
+            }
+        }, 3000);
+    }
+
+    function setupSkipOutro() {
+        // Detect when episode is near end (simulate with timer for demo)
+        // In real implementation, you'd monitor video currentTime
+        setTimeout(() => {
+            if ((currentModalType === 'tv' || currentIsAnime) && currentEpisode < maxEpisodes) {
+                showSkipButton('skip-outro-btn', 'skip-outro-timer', 10, () => {
+                    playNextEpisode();
+                });
+            }
+        }, 120000); // Show after 2 minutes for demo (would be dynamic based on video duration)
+    }
+
+    function showNextEpisodeButton() {
+        if ((currentModalType === 'tv' || currentIsAnime) && currentEpisode < maxEpisodes) {
+            showSkipButton('next-episode-btn', 'next-ep-timer', 15, () => {
+                playNextEpisode();
+            });
+        }
+    }
+
+    function playNextEpisode() {
+        if (currentEpisode < maxEpisodes) {
+            currentEpisode++;
+            document.getElementById('episode-select').value = currentEpisode;
+            hideAllSkipButtons();
+            loadEpisodes(currentModalId, currentSeason);
+            
+            // Reset skip timers for new episode
+            setTimeout(() => {
+                setupSkipIntro();
+                setupSkipOutro();
+            }, 5000);
+        }
+    }
+
     function buildSourceButtons(type, id, season, episode, audioLang, isAnime) {
         const container = document.getElementById('source-buttons');
         container.innerHTML = '';
@@ -1058,6 +1250,15 @@
                 // Update active state
                 document.querySelectorAll('.source-btn').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
+                
+                // Reset skip functionality when changing sources
+                hideAllSkipButtons();
+                if (type === 'tv' || isAnime) {
+                    setTimeout(() => {
+                        setupSkipIntro();
+                        setupSkipOutro();
+                    }, 5000);
+                }
             };
             container.appendChild(btn);
         });
@@ -1081,6 +1282,9 @@
         currentSeason = 1; 
         currentEpisode = 1;
         currentSourceIndex = 0;
+        
+        // Clear any existing skip timers
+        hideAllSkipButtons();
         
         const options = { headers: { 'Authorization': `Bearer ${TMDB_READ_TOKEN}` } };
         let detailUrl = type === 'movie' ? `${API_BASE}/movie/${id}` : `${API_BASE}/tv/${id}`;
@@ -1115,7 +1319,7 @@
             currentAudioLang = 'sub';
         }
         
-        if (type === 'tv') {
+        if (type === 'tv' || isAnime) {
             document.getElementById('tv-controls').style.display = 'block';
             fetch(`${API_BASE}/tv/${id}`, options)
                 .then(res => res.json())
@@ -1133,7 +1337,18 @@
                         });
                     }
                     currentSeason = data.seasons?.find(s=>s.season_number>0)?.season_number || 1;
+                    
+                    // Get max episodes for next episode functionality
+                    const currentSeasonData = data.seasons?.find(s => s.season_number === currentSeason);
+                    maxEpisodes = currentSeasonData?.episode_count || 0;
+                    
                     loadEpisodes(id, currentSeason);
+                    
+                    // Setup skip functionality for series
+                    setTimeout(() => {
+                        setupSkipIntro();
+                        setupSkipOutro();
+                    }, 5000);
                 });
         } else {
             document.getElementById('tv-controls').style.display = 'none';
@@ -1147,6 +1362,9 @@
             .then(data => {
                 const epSelect = document.getElementById('episode-select');
                 epSelect.innerHTML = '';
+                episodeData = data.episodes || [];
+                maxEpisodes = episodeData.length;
+                
                 if (data.episodes) {
                     data.episodes.forEach(ep => {
                         let opt = document.createElement('option');
@@ -1156,7 +1374,7 @@
                     });
                 }
                 currentEpisode = data.episodes?.[0]?.episode_number || 1;
-                buildSourceButtons('tv', tvId, currentSeason, currentEpisode, currentAudioLang, currentIsAnime);
+                buildSourceButtons(currentModalType, currentModalId, currentSeason, currentEpisode, currentAudioLang, currentIsAnime);
             })
             .catch(() => {
                 document.getElementById('episode-select').innerHTML = '<option>Error</option>';
@@ -1165,12 +1383,26 @@
 
     document.getElementById('season-select')?.addEventListener('change', (e) => {
         currentSeason = parseInt(e.target.value);
+        hideAllSkipButtons();
         loadEpisodes(currentModalId, currentSeason);
+        
+        // Reset skip timers for new season
+        setTimeout(() => {
+            setupSkipIntro();
+            setupSkipOutro();
+        }, 5000);
     });
     
     document.getElementById('episode-select')?.addEventListener('change', (e) => {
         currentEpisode = parseInt(e.target.value);
+        hideAllSkipButtons();
         buildSourceButtons(currentModalType, currentModalId, currentSeason, currentEpisode, currentAudioLang, currentIsAnime);
+        
+        // Reset skip timers for new episode
+        setTimeout(() => {
+            setupSkipIntro();
+            setupSkipOutro();
+        }, 5000);
     });
 
     document.getElementById('lang-sub')?.addEventListener('click', () => {
@@ -1198,6 +1430,7 @@
     });
 
     document.getElementById('back-btn').addEventListener('click', () => { 
+        hideAllSkipButtons();
         document.getElementById('movie-player').src = ''; 
         document.getElementById('movie-modal').style.display = 'none';
         document.body.style.overflow = '';
@@ -1226,6 +1459,7 @@
         if (e.key === 'Escape') {
             const modal = document.getElementById('movie-modal');
             if (modal.style.display === 'block') {
+                hideAllSkipButtons();
                 document.getElementById('movie-player').src = '';
                 modal.style.display = 'none';
                 document.body.style.overflow = '';
