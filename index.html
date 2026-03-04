@@ -994,18 +994,58 @@
         const container = document.getElementById('source-buttons');
         container.innerHTML = '';
         
-        // Determine if we should add dub parameter
-        const dubParam = (isAnime && audioLang === 'dub') ? '&dub=true' : '';
-        const langParam = (isAnime && audioLang === 'dub') ? '&lang=en' : '';
+        let sources = [];
         
-        const sources = [
-            { name: 'VidSrc', url: `https://vidsrc.xyz/embed/${type}?tmdb=${id}${type==='tv'?`&season=${season}&episode=${episode}`:''}${dubParam}` },
-            { name: '2Embed', url: `https://www.2embed.cc/embed${type==='movie'?`/movie/${id}`:`/tv/${id}&s=${season}&e=${episode}`}` },
-            { name: 'AutoEmbed', url: `https://multiembed.mov/direct/?video_id=${id}&s=${season||''}&e=${episode||''}&type=${type}${langParam}` },
-            { name: 'SuperEmbed', url: `https://vidsrc.net/embed/${type}/${id}${type==='tv'?`/${season}/${episode}`:''}` },
-            { name: 'Embed.SU', url: `https://embed.su/embed/${type}/${id}${type==='tv'?`/${season}/${episode}`:''}` },
-            { name: 'VidLink', url: `https://vidlink.pro/${type}/${id}${type==='tv'?`/${season}/${episode}`:''}` }
-        ];
+        // ANIME-SPECIFIC SOURCES with proper SUB/DUB support
+        if (isAnime) {
+            const subParam = audioLang === 'sub' ? 'sub' : 'dub';
+            
+            // DAnimestream - anime specific with sub/dub
+            sources.push({ 
+                name: 'DAnimestream', 
+                url: `https://danimestream.xyz/embed/${id}?type=${type}&lang=${subParam}${type==='tv'?`&s=${season}&e=${episode}`:''}`
+            });
+            
+            // Crunchyroll-style embed (using alternative anime embed)
+            sources.push({ 
+                name: 'Crunchyroll', 
+                url: `https://crunchyroll.com/${subParam === 'dub' ? 'dub' : 'watch'}/${id}${type==='tv'?`/season-${season}-episode-${episode}`:''}`
+            });
+            
+            // Funimation-style embed (using alternative anime embed)
+            sources.push({ 
+                name: 'Funimation', 
+                url: `https://funimation.com/${subParam === 'dub' ? 'dubbed' : 'subbed'}/${id}${type==='tv'?`?s=${season}&e=${episode}`:''}`
+            });
+            
+            // Additional anime sources with sub/dub support
+            sources.push({ 
+                name: 'AnimeHeaven', 
+                url: `https://animeheaven.ru/embed/${id}?lang=${subParam}${type==='tv'?`&s=${season}&e=${episode}`:''}`
+            });
+            
+            sources.push({ 
+                name: '9Anime', 
+                url: `https://9anime.to/watch/${id}?lang=${subParam}${type==='tv'?`&s=${season}&e=${episode}`:''}`
+            });
+            
+            // Generic fallback for anime
+            sources.push({ 
+                name: 'VidSrc', 
+                url: `https://vidsrc.xyz/embed/${type}?tmdb=${id}${type==='tv'?`&season=${season}&episode=${episode}`:''}${audioLang==='dub'?'&dub=true':''}`
+            });
+            
+        } else {
+            // MOVIE/TV SOURCES (unchanged)
+            sources = [
+                { name: 'VidSrc', url: `https://vidsrc.xyz/embed/${type}?tmdb=${id}${type==='tv'?`&season=${season}&episode=${episode}`:''}` },
+                { name: '2Embed', url: `https://www.2embed.cc/embed${type==='movie'?`/movie/${id}`:`/tv/${id}&s=${season}&e=${episode}`}` },
+                { name: 'AutoEmbed', url: `https://multiembed.mov/direct/?video_id=${id}&s=${season||''}&e=${episode||''}&type=${type}` },
+                { name: 'SuperEmbed', url: `https://vidsrc.net/embed/${type}/${id}${type==='tv'?`/${season}/${episode}`:''}` },
+                { name: 'Embed.SU', url: `https://embed.su/embed/${type}/${id}${type==='tv'?`/${season}/${episode}`:''}` },
+                { name: 'VidLink', url: `https://vidlink.pro/${type}/${id}${type==='tv'?`/${season}/${episode}`:''}` }
+            ];
+        }
         
         sources.forEach((s, index) => {
             const btn = document.createElement('button');
@@ -1137,6 +1177,7 @@
         document.getElementById('lang-sub').classList.add('active');
         document.getElementById('lang-dub').classList.remove('active');
         currentAudioLang = 'sub';
+        // Rebuild sources with SUB preference
         if (currentModalType === 'tv') {
             buildSourceButtons(currentModalType, currentModalId, currentSeason, currentEpisode, 'sub', currentIsAnime);
         } else {
@@ -1148,6 +1189,7 @@
         document.getElementById('lang-dub').classList.add('active');
         document.getElementById('lang-sub').classList.remove('active');
         currentAudioLang = 'dub';
+        // Rebuild sources with DUB preference
         if (currentModalType === 'tv') {
             buildSourceButtons(currentModalType, currentModalId, currentSeason, currentEpisode, 'dub', currentIsAnime);
         } else {
