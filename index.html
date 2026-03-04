@@ -691,7 +691,7 @@
         </div>
         <div class="player-main-area">
             <div class="player-container">
-                <iframe id="movie-player" allowfullscreen allow="autoplay; encrypted-media"></iframe>
+                <iframe id="movie-player" allowfullscreen allow="autoplay; encrypted-media; microphone; camera; display-capture" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-presentation"></iframe>
                 
                 <!-- Skip Intro Button -->
                 <div id="skip-intro-btn" class="skip-btn">
@@ -1182,7 +1182,7 @@
         }
     }
 
-    // ORIGINAL SOURCE BUILDER - Restored to original version with all streaming sources
+    // MODIFIED SOURCE BUILDER - Removed VidLink, kept other sources with audio-friendly settings
     function buildSourceButtons(type, id, season, episode, audioLang, isAnime) {
         const container = document.getElementById('source-buttons');
         container.innerHTML = '';
@@ -1191,14 +1191,13 @@
         const dubParam = (isAnime && audioLang === 'dub') ? '&dub=true' : '';
         const langParam = (isAnime && audioLang === 'dub') ? '&lang=en' : '';
         
-        // ALL STREAMING SOURCES - Same for Movies, TV, and Anime
+        // STREAMING SOURCES - VidLink removed due to audio issues
         const sources = [
             { name: 'VidSrc', url: `https://vidsrc.xyz/embed/${type}?tmdb=${id}${type==='tv'?`&season=${season}&episode=${episode}`:''}${dubParam}` },
             { name: '2Embed', url: `https://www.2embed.cc/embed${type==='movie'?`/movie/${id}`:`/tv/${id}&s=${season}&e=${episode}`}` },
             { name: 'AutoEmbed', url: `https://multiembed.mov/direct/?video_id=${id}&s=${season||''}&e=${episode||''}&type=${type}${langParam}` },
             { name: 'SuperEmbed', url: `https://vidsrc.net/embed/${type}/${id}${type==='tv'?`/${season}/${episode}`:''}` },
-            { name: 'Embed.SU', url: `https://embed.su/embed/${type}/${id}${type==='tv'?`/${season}/${episode}`:''}` },
-            { name: 'VidLink', url: `https://vidlink.pro/${type}/${id}${type==='tv'?`/${season}/${episode}`:''}` }
+            { name: 'Embed.SU', url: `https://embed.su/embed/${type}/${id}${type==='tv'?`/${season}/${episode}`:''}` }
         ];
         
         sources.forEach((s, index) => {
@@ -1437,17 +1436,149 @@
     })();
 })();
 
-// Ad blocker
-window.addEventListener('load', function() {
+// ENHANCED AD BLOCKER - Blocks popups, redirects, and common ad patterns
+(function() {
+    'use strict';
+    
+    // Block popups and redirects
     const originalOpen = window.open;
+    const originalLocationAssign = window.location.assign;
+    const originalLocationReplace = window.location.replace;
+    const originalHref = Object.getOwnPropertyDescriptor(window.location, 'href');
+    
+    const blockedPatterns = [
+        'ad', 'pop', 'click', 'redirect', 'popup', 'banner', 
+        'doubleclick', 'googlesyndication', 'googleads', 
+        'facebook.com/tr', 'analytics', 'tracker', 'pixel',
+        'outbrain', 'taboola', 'adsystem', 'amazon-adsystem',
+        'delivery', 'servedby', 'adsrv', 'adzerk', 'adspeed',
+        'exponential', 'adnxs', 'openx', 'pubmatic', 'rubicon',
+        'casalemedia', 'fastclick', 'adbrite', 'adtech', 'advertising',
+        'yieldmanager', 'bluekai', 'mathtag', 'quantserve', 'scorecardresearch'
+    ];
+    
+    function isBlocked(url) {
+        if (!url || typeof url !== 'string') return false;
+        const lowerUrl = url.toLowerCase();
+        return blockedPatterns.some(pattern => lowerUrl.includes(pattern));
+    }
+    
+    // Override window.open
     window.open = function(url, ...rest) {
-        if (url && (typeof url === 'string') && (url.includes('ad') || url.includes('pop') || url.includes('click'))) { 
-            console.warn('Blocked popup:', url); 
-            return null; 
+        if (isBlocked(url)) {
+            console.warn('🚫 Blocked popup:', url);
+            return null;
         }
         return originalOpen.call(window, url, ...rest);
     };
-});
+    
+    // Override location methods
+    window.location.assign = function(url) {
+        if (isBlocked(url)) {
+            console.warn('🚫 Blocked redirect (assign):', url);
+            return;
+        }
+        return originalLocationAssign.call(window.location, url);
+    };
+    
+    window.location.replace = function(url) {
+        if (isBlocked(url)) {
+            console.warn('🚫 Blocked redirect (replace):', url);
+            return;
+        }
+        return originalLocationReplace.call(window.location, url);
+    };
+    
+    // Block beforeunload prompts (common ad tactic)
+    window.addEventListener('beforeunload', function(e) {
+        // Check if it's a real user navigation or ad-triggered
+        if (!e.isTrusted) {
+            e.preventDefault();
+            e.returnValue = '';
+            return '';
+        }
+    }, true);
+    
+    // Mutation observer to remove ad elements
+    const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            mutation.addedNodes.forEach(function(node) {
+                if (node.nodeType === 1) { // Element node
+                    // Remove iframes with ad sources
+                    if (node.tagName === 'IFRAME') {
+                        const src = node.src || '';
+                        if (isBlocked(src) || node.style.position === 'fixed' || node.style.zIndex > 10000) {
+                            console.warn('🚫 Removed ad iframe:', src);
+                            node.remove();
+                        }
+                    }
+                    // Remove suspicious divs
+                    if (node.tagName === 'DIV' || node.tagName === 'SECTION') {
+                        const id = (node.id || '').toLowerCase();
+                        const cls = (node.className || '').toLowerCase();
+                        if (id.includes('ad') || cls.includes('ad') || 
+                            id.includes('popup') || cls.includes('popup') ||
+                            id.includes('banner') || cls.includes('banner')) {
+                            if (node.offsetWidth < 10 || node.offsetHeight < 10) {
+                                node.remove(); // Hidden tracking elements
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    });
+    
+    observer.observe(document.body, { childList: true, subtree: true });
+    
+    // Block common ad scripts
+    const originalAppendChild = Element.prototype.appendChild;
+    const originalInsertBefore = Element.prototype.insertBefore;
+    
+    function blockScript(node) {
+        if (node.tagName === 'SCRIPT' && node.src) {
+            if (isBlocked(node.src)) {
+                console.warn('🚫 Blocked ad script:', node.src);
+                return true;
+            }
+        }
+        if (node.tagName === 'IFRAME') {
+            if (isBlocked(node.src) || node.style.position === 'fixed') {
+                console.warn('🚫 Blocked ad iframe:', node.src);
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    Element.prototype.appendChild = function(node) {
+        if (blockScript(node)) {
+            return node;
+        }
+        return originalAppendChild.call(this, node);
+    };
+    
+    Element.prototype.insertBefore = function(node, ref) {
+        if (blockScript(node)) {
+            return node;
+        }
+        return originalInsertBefore.call(this, node, ref);
+    };
+    
+    // Block click events on ad elements
+    document.addEventListener('click', function(e) {
+        const target = e.target;
+        const href = target.href || target.closest('a')?.href || '';
+        if (isBlocked(href)) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.warn('🚫 Blocked ad click:', href);
+            return false;
+        }
+    }, true);
+    
+    console.log('🛡️ Ad blocker initialized');
+})();
 </script>
 </body>
 </html>
