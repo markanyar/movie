@@ -158,7 +158,7 @@
         }
         .apply-filter-btn:hover { background: #b00610; }
 
-        /* ===== CAROUSEL – 3s auto slide ===== */
+        /* ===== CAROUSEL – Manual only (no auto slide) ===== */
         .carousel-section {
             padding: 0.2rem 0 1rem;
             position: relative;
@@ -189,9 +189,18 @@
             scroll-behavior: smooth;
             -webkit-overflow-scrolling: touch;
             will-change: scroll-position;
+            cursor: grab;
         }
-        .card-scroll::-webkit-scrollbar { display: none; }
-        .card-scroll { -ms-overflow-style: none; scrollbar-width: none; }
+        .card-scroll:active { cursor: grabbing; }
+        .card-scroll::-webkit-scrollbar { 
+            height: 4px;
+            background: #1a1a1a;
+        }
+        .card-scroll::-webkit-scrollbar-thumb {
+            background: #e50914;
+            border-radius: 10px;
+        }
+        .card-scroll { -ms-overflow-style: auto; scrollbar-width: thin; scrollbar-color: #e50914 #1a1a1a; }
 
         .slide-card {
             flex: 0 0 calc(94% - 1rem);
@@ -238,6 +247,7 @@
         .indicator-dot {
             width: 10px; height: 10px; border-radius: 50%; background: #444;
             transition: 0.2s;
+            cursor: pointer;
         }
         .indicator-dot.active { background: #e50914; width: 28px; border-radius: 20px; }
 
@@ -526,7 +536,7 @@
     <div class="carousel-section">
         <div class="section-header">
             <h2><i class="fas fa-fire" style="color:#e50914;"></i> NOW PLAYING</h2>
-            <span style="color:#e50914; font-size:0.9rem; margin-right:1rem;"><span id="carousel-timer-hint">3</span>s</span>
+            <span style="color:#e50914; font-size:0.9rem; margin-right:1rem;">← Swipe →</span>
         </div>
         <div class="carousel-wrapper">
             <div class="card-scroll" id="latest-carousel"></div>
@@ -630,7 +640,6 @@
     const nextBtn = document.getElementById('next-page');
     const pageIndicator = document.getElementById('page-indicator');
     const indicatorsContainer = document.getElementById('carousel-indicators');
-    const timerHint = document.getElementById('carousel-timer-hint');
     const filterYearInput = document.getElementById('filter-year');
     const filterRatingInput = document.getElementById('filter-rating');
     const filterSortSelect = document.getElementById('filter-sort');
@@ -707,50 +716,50 @@
 
             renderCarousel(carouselItems);
             createIndicators(Math.min(carouselItems.length, 10));
-            startAutoSlide(3000);
+            
+            // Add scroll event listener to update indicators
+            const scrollContainer = document.querySelector('.card-scroll');
+            if (scrollContainer) {
+                scrollContainer.addEventListener('scroll', updateIndicatorsOnScroll);
+            }
         } catch (e) { console.warn('carousel error', e); }
     }
 
-    let autoSlideInterval, countdownInterval;
-    function startAutoSlide(intervalMs = 3000) {
-        if (autoSlideInterval) clearInterval(autoSlideInterval);
-        if (countdownInterval) clearInterval(countdownInterval);
-        
+    function updateIndicatorsOnScroll() {
         const scrollContainer = document.querySelector('.card-scroll');
         if (!scrollContainer || carouselItems.length === 0) return;
-        let index = 0;
-        const total = Math.min(carouselItems.length, 10);
-
-        const updateIndicators = () => {
-            const dots = document.querySelectorAll('.indicator-dot');
-            dots.forEach((dot, i) => dot.classList.toggle('active', i === index));
-        };
-
-        let countdown = 3;
-        if (timerHint) timerHint.innerText = countdown;
-
-        autoSlideInterval = setInterval(() => {
-            index = (index + 1) % total;
-            const card = scrollContainer.children[index];
-            if (card) {
-                card.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
-            }
-            updateIndicators();
-            countdown = 3;
-        }, intervalMs);
-
-        countdownInterval = setInterval(() => {
-            if (timerHint) {
-                countdown = (countdown > 1) ? countdown - 1 : 3;
-                timerHint.innerText = countdown;
-            }
-        }, 1000);
+        
+        const scrollPosition = scrollContainer.scrollLeft;
+        const cardWidth = scrollContainer.children[0]?.offsetWidth || 0;
+        const gap = 16; // 1rem gap
+        const totalWidth = cardWidth + gap;
+        
+        let activeIndex = Math.round(scrollPosition / totalWidth);
+        activeIndex = Math.min(activeIndex, carouselItems.length - 1);
+        
+        const dots = document.querySelectorAll('.indicator-dot');
+        dots.forEach((dot, i) => dot.classList.toggle('active', i === activeIndex));
     }
 
     function createIndicators(total) {
         let dotsHtml = '';
-        for (let i = 0; i < total; i++) dotsHtml += `<span class="indicator-dot ${i===0?'active':''}"></span>`;
+        for (let i = 0; i < total; i++) dotsHtml += `<span class="indicator-dot ${i===0?'active':''}" data-index="${i}"></span>`;
         indicatorsContainer.innerHTML = dotsHtml;
+        
+        // Add click handlers to dots
+        document.querySelectorAll('.indicator-dot').forEach(dot => {
+            dot.addEventListener('click', function() {
+                const index = parseInt(this.dataset.index);
+                const scrollContainer = document.querySelector('.card-scroll');
+                if (scrollContainer && scrollContainer.children[index]) {
+                    scrollContainer.children[index].scrollIntoView({ 
+                        behavior: 'smooth', 
+                        block: 'nearest', 
+                        inline: 'start' 
+                    });
+                }
+            });
+        });
     }
 
     function renderCarousel(items) {
