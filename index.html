@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>MARKANYAR – spicy Anyar MOVies</title>
+    <title>MARKANYAR – spicy Anyar MOVies + ANIME</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=yes">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
@@ -255,7 +255,7 @@
             opacity: 0; transition: 0.2s; cursor: pointer; border: 2px solid rgba(255,255,255,0.3);
         }
         .movie-card:hover .play-overlay { opacity: 1; transform: translate(-50%,-50%) scale(1); }
-        /* ===== MODAL (same as before, but tidier) ===== */
+        /* ===== MODAL ===== */
         .movie-modal {
             display: none;
             position: fixed; inset: 0;
@@ -292,10 +292,51 @@
         }
         .player-container {
             width: 100%; height: 100%;
+            position: relative;
         }
         #movie-player {
             width: 100%; height: 100%;
             border: none; background: black;
+        }
+        /* Skip Intro/Outro Buttons */
+        .skip-btn {
+            position: absolute;
+            bottom: 100px;
+            right: 20px;
+            background: rgba(0,0,0,0.8);
+            border: 2px solid #e50914;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 40px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 100;
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.2s;
+            animation: slideIn 0.3s ease;
+            box-shadow: 0 4px 15px rgba(229,9,20,0.3);
+        }
+        .skip-btn:hover {
+            background: #e50914;
+            transform: scale(1.05);
+        }
+        .skip-btn i {
+            font-size: 1.2rem;
+        }
+        .skip-timer {
+            background: rgba(255,255,255,0.2);
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-left: 8px;
+        }
+        @keyframes slideIn {
+            from { transform: translateX(100px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
         }
         .info-bar {
             background: #0c0c0c;
@@ -347,6 +388,18 @@
             background: #2a2a2a; border: 1px solid #444; color: white;
             padding: 0.3rem 0.8rem; border-radius: 30px; margin-left: 0.3rem;
         }
+        /* language toggle for anime SUB / DUB */
+        .lang-toggle {
+            background: #1a1a1a; border-radius: 40px; padding: 0.6rem 1.2rem;
+            margin-top: 0.6rem; display: flex; gap: 0.8rem; align-items: center;
+        }
+        .lang-btn {
+            background: #2a2a2a; border: 1px solid #444; color: #ccc;
+            padding: 0.4rem 1.2rem; border-radius: 30px; cursor: pointer;
+        }
+        .lang-btn.active {
+            background: #e50914; border-color: #e50914; color: white;
+        }
         #player-error {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
             background: #111; border: 2px solid #e50914; padding: 1.5rem;
@@ -366,6 +419,7 @@
             .filters { top: 62px; }
             #movies-grid { padding-top: 140px; }
             .genre-dropdown-button { font-size: 0.9rem; padding: 0.5rem 2rem 0.5rem 1rem; }
+            .skip-btn { bottom: 80px; right: 10px; padding: 8px 16px; font-size: 0.9rem; }
         }
     </style>
 </head>
@@ -380,12 +434,13 @@
     <button class="user-btn" id="fullscreen-toggle"><i class="fas fa-expand"></i></button>
 </header>
 
-<!-- FILTER ROW with phone‑friendly genre DROPDOWN -->
+<!-- FILTER ROW with phone‑friendly genre DROPDOWN + ANIME TAB -->
 <div class="filters" id="filter-panel">
     <div class="filter-row" id="filter-row">
         <div class="media-type-selector">
             <button class="type-btn active" data-type="movie">🎬 Movies</button>
             <button class="type-btn" data-type="tv">📺 TV</button>
+            <button class="type-btn" data-type="anime">✨ Anime</button>
         </div>
         <!-- Genre dropdown (neat on any device) -->
         <div class="genre-dropdown-container" id="genreDropdownContainer">
@@ -418,6 +473,14 @@
         <div class="player-main-area">
             <div class="player-container">
                 <iframe id="movie-player" allowfullscreen allow="autoplay; encrypted-media"></iframe>
+                <!-- Skip Intro Button -->
+                <div id="skip-intro-btn" class="skip-btn" style="display: none;">
+                    <i class="fas fa-forward"></i> Skip Intro <span class="skip-timer" id="skip-intro-timer">5s</span>
+                </div>
+                <!-- Skip Outro Button -->
+                <div id="skip-outro-btn" class="skip-btn" style="display: none;">
+                    <i class="fas fa-fast-forward"></i> Skip Outro <span class="skip-timer" id="skip-outro-timer">5s</span>
+                </div>
                 <div id="player-error">
                     <h3 style="color:#e50914;">⚠️ Playback error</h3>
                     <p id="error-text">Source failed. Try another.</p>
@@ -444,6 +507,13 @@
                         <div class="source-buttons" id="source-buttons"></div>
                     </div>
 
+                    <!-- Language toggle for Anime (SUB / DUB) -->
+                    <div id="lang-toggle-container" class="lang-toggle" style="display: none;">
+                        <span style="color:white;">🔊 Audio:</span>
+                        <button id="lang-sub" class="lang-btn active">SUB (Japanese)</button>
+                        <button id="lang-dub" class="lang-btn">DUB (English)</button>
+                    </div>
+
                     <div class="tv-controls" id="tv-controls" style="display: none;">
                         <div><label>Season:</label> <select id="season-select"></select></div>
                         <div><label>Episode:</label> <select id="episode-select"></select></div>
@@ -463,6 +533,7 @@
 
     let movieGenres = [];
     let tvGenres = [];
+    const ANIME_GENRE_ID = 16;
     let mediaType = 'movie';
     let activeGenreId = null;
     let currentPage = 1;
@@ -473,8 +544,17 @@
     let currentSeason = 1;
     let currentEpisode = 1;
     let currentSourceIndex = 0;
+    let currentLang = 'sub';
 
-    // sources
+    // Skip intro/outro timers and state
+    let skipIntroTimeout = null;
+    let skipOutroTimeout = null;
+    let episodeStartTime = null;
+    let episodeDuration = 0;
+    const INTRO_DURATION = 90; // 1.5 minutes in seconds
+    const OUTRO_DURATION = 60; // 1 minute in seconds
+    const SKIP_BUTTON_DELAY = 5; // Show button 5 seconds before end of intro/outro
+
     const STREAMING_SOURCES = {
         movie: [
             { name: "VidSrc (main)", url: (id) => `https://vidsrc.me/embed/movie?tmdb=${id}` },
@@ -488,10 +568,24 @@
             { name: "VidSrc XYZ TV", url: (id, s, e) => `https://vidsrc.xyz/embed/tv?tmdb=${id}&season=${s}&episode=${e}` },
             { name: "2Embed TV", url: (id, s, e) => `https://www.2embed.cc/embedtv/${id}&s=${s}&e=${e}` },
             { name: "AutoEmbed TV", url: (id, s, e) => `https://autoembed.co/tv/tmdb/${id}/${s}/${e}` }
-        ]
+        ],
+        anime: {
+            movie: [
+                { name: "VidSrc (sub)", url: (id, lang='sub') => `https://vidsrc.me/embed/movie?tmdb=${id}&ds=`+(lang==='dub'?'en':'ja') },
+                { name: "VidSrc XYZ (sub)", url: (id, lang='sub') => `https://vidsrc.xyz/embed/movie?tmdb=${id}` },
+                { name: "2Embed (sub)", url: (id) => `https://www.2embed.cc/embed/${id}` },
+                { name: "AutoEmbed (sub)", url: (id) => `https://autoembed.co/movie/tmdb/${id}` }
+            ],
+            tv: [
+                { name: "VidSrc TV (sub/dub)", url: (id, s, e, lang='sub') => `https://vidsrc.me/embed/tv?tmdb=${id}&season=${s}&episode=${e}&ds=`+(lang==='dub'?'en':'ja') },
+                { name: "VidSrc XYZ TV", url: (id, s, e) => `https://vidsrc.xyz/embed/tv?tmdb=${id}&season=${s}&episode=${e}` },
+                { name: "2Embed TV", url: (id, s, e) => `https://www.2embed.cc/embedtv/${id}&s=${s}&e=${e}` },
+                { name: "AutoEmbed TV", url: (id, s, e) => `https://autoembed.co/tv/tmdb/${id}/${s}/${e}` }
+            ]
+        }
     };
 
-    // DOM
+    // DOM elements
     const grid = document.getElementById('movies-grid');
     const modal = document.getElementById('movie-modal');
     const player = document.getElementById('movie-player');
@@ -512,8 +606,15 @@
     const genreDropdownBtn = document.getElementById('genreDropdownBtn');
     const genreDropdownMenu = document.getElementById('genreDropdownMenu');
     const selectedGenreNameSpan = document.getElementById('selectedGenreName');
+    const langToggleContainer = document.getElementById('lang-toggle-container');
+    const langSubBtn = document.getElementById('lang-sub');
+    const langDubBtn = document.getElementById('lang-dub');
+    const skipIntroBtn = document.getElementById('skip-intro-btn');
+    const skipOutroBtn = document.getElementById('skip-outro-btn');
+    const skipIntroTimer = document.getElementById('skip-intro-timer');
+    const skipOutroTimer = document.getElementById('skip-outro-timer');
 
-    // modal info elements
+    // Modal info elements
     const modalPoster = document.getElementById('modal-poster');
     const modalTitle = document.getElementById('modal-title');
     const modalRating = document.getElementById('modal-rating');
@@ -525,7 +626,7 @@
     // ========== INIT ==========
     document.addEventListener('DOMContentLoaded', async () => {
         await loadGenres();
-        buildGenreDropdown();  // builds dropdown based on current mediaType
+        buildGenreDropdown();
         loadContent();
         setupEventListeners();
         setupScrollHeader();
@@ -546,34 +647,35 @@
     }
 
     function buildGenreDropdown() {
-        const genres = mediaType === 'movie' ? movieGenres : tvGenres;
+        let genres = [];
+        if (mediaType === 'movie') genres = movieGenres;
+        else if (mediaType === 'tv') genres = tvGenres;
+        else if (mediaType === 'anime') {
+            const combined = [...movieGenres, ...tvGenres];
+            genres = Array.from(new Map(combined.map(g=>[g.id, g])).values());
+        }
         let items = '<div class="genre-option" data-id="null"><i class="fas fa-fire"></i> All</div>';
         genres.forEach(g => {
             items += `<div class="genre-option" data-id="${g.id}"><i class="fas fa-film"></i> ${g.name}</div>`;
         });
         genreDropdownMenu.innerHTML = items;
-        // attach click to each option
         document.querySelectorAll('.genre-option').forEach(opt => {
             opt.addEventListener('click', (e) => {
                 e.stopPropagation();
                 const id = opt.dataset.id === 'null' ? null : parseInt(opt.dataset.id);
                 activeGenreId = id;
                 selectedGenreNameSpan.innerText = opt.innerText.trim() || 'All';
-                // close dropdown
                 genreDropdownMenu.classList.remove('show');
-                // update selected style
                 document.querySelectorAll('.genre-option').forEach(o => o.classList.remove('selected'));
                 opt.classList.add('selected');
                 currentPage = 1;
                 loadContent();
             });
         });
-        // default: select "All"
         const allOpt = document.querySelector('.genre-option[data-id="null"]');
         if (allOpt) allOpt.classList.add('selected');
     }
 
-    // toggle dropdown
     genreDropdownBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         genreDropdownMenu.classList.toggle('show');
@@ -628,7 +730,37 @@
             currentEpisode = parseInt(e.target.value);
             if (currentItemId) {
                 currentSourceIndex = 0;
-                loadTVStream(currentSourceIndex);
+                if (mediaType === 'anime') loadAnimeStream(0);
+                else if (mediaType === 'tv') loadTVStream(0);
+                resetSkipButtons();
+            }
+        });
+
+        // Skip button listeners
+        skipIntroBtn.addEventListener('click', () => {
+            skipIntro();
+        });
+        skipOutroBtn.addEventListener('click', () => {
+            skipOutro();
+        });
+
+        // Language toggle for anime
+        langSubBtn.addEventListener('click', () => {
+            langSubBtn.classList.add('active');
+            langDubBtn.classList.remove('active');
+            currentLang = 'sub';
+            if (currentItemId && mediaType === 'anime') {
+                currentSourceIndex = 0;
+                loadAnimeStream(0);
+            }
+        });
+        langDubBtn.addEventListener('click', () => {
+            langDubBtn.classList.add('active');
+            langSubBtn.classList.remove('active');
+            currentLang = 'dub';
+            if (currentItemId && mediaType === 'anime') {
+                currentSourceIndex = 0;
+                loadAnimeStream(0);
             }
         });
 
@@ -643,6 +775,118 @@
             if (!document.fullscreenElement) document.documentElement.requestFullscreen();
             else document.exitFullscreen();
         });
+
+        // Listen for messages from iframe to track video progress (simulated)
+        window.addEventListener('message', (event) => {
+            // This would require the embed to send timeupdate events
+            // For demo purposes, we'll simulate with a timer
+        });
+    }
+
+    // Skip Intro/Outro Functions
+    function setupSkipButtons() {
+        resetSkipButtons();
+        
+        // Show intro button after 30 seconds of playback
+        if (mediaType === 'tv' || mediaType === 'anime') {
+            skipIntroTimeout = setTimeout(() => {
+                showSkipIntroButton();
+            }, 25000); // Show at 25 seconds (typical intro ends around 90s)
+            
+            // Show outro button near the end (simulated)
+            // In a real implementation, you'd get episode duration from TMDB
+            setTimeout(() => {
+                showSkipOutroButton();
+            }, 1200000); // This is just a placeholder
+        }
+    }
+
+    function showSkipIntroButton() {
+        let countdown = SKIP_BUTTON_DELAY;
+        skipIntroTimer.textContent = `${countdown}s`;
+        skipIntroBtn.style.display = 'flex';
+        
+        const countdownInterval = setInterval(() => {
+            countdown--;
+            skipIntroTimer.textContent = `${countdown}s`;
+            if (countdown <= 0) {
+                clearInterval(countdownInterval);
+            }
+        }, 1000);
+        
+        // Auto-hide after 10 seconds if not clicked
+        setTimeout(() => {
+            if (skipIntroBtn.style.display === 'flex') {
+                skipIntroBtn.style.display = 'none';
+            }
+        }, 10000);
+    }
+
+    function showSkipOutroButton() {
+        let countdown = SKIP_BUTTON_DELAY;
+        skipOutroTimer.textContent = `${countdown}s`;
+        skipOutroBtn.style.display = 'flex';
+        
+        const countdownInterval = setInterval(() => {
+            countdown--;
+            skipOutroTimer.textContent = `${countdown}s`;
+            if (countdown <= 0) {
+                clearInterval(countdownInterval);
+            }
+        }, 1000);
+        
+        setTimeout(() => {
+            if (skipOutroBtn.style.display === 'flex') {
+                skipOutroBtn.style.display = 'none';
+            }
+        }, 10000);
+    }
+
+    function skipIntro() {
+        // In a real implementation, you'd seek forward 90 seconds
+        // For now, we'll just hide the button and reload with a timestamp parameter
+        console.log('Skipping intro...');
+        skipIntroBtn.style.display = 'none';
+        
+        // Try to seek by reloading with timestamp parameter if supported
+        const currentUrl = player.src;
+        if (currentUrl.includes('?')) {
+            player.src = currentUrl + '&t=90'; // Start at 90 seconds
+        } else {
+            player.src = currentUrl + '?t=90';
+        }
+        
+        clearTimeout(skipIntroTimeout);
+    }
+
+    function skipOutro() {
+        console.log('Skipping outro...');
+        skipOutroBtn.style.display = 'none';
+        
+        // For outro, we'd normally skip to next episode
+        if (mediaType === 'tv' || mediaType === 'anime') {
+            // Auto-load next episode
+            const nextEpisode = currentEpisode + 1;
+            const seasonEpisodes = episodeSelect.options.length;
+            if (nextEpisode <= seasonEpisodes) {
+                episodeSelect.value = nextEpisode;
+                currentEpisode = nextEpisode;
+                if (mediaType === 'anime') {
+                    loadAnimeStream(currentSourceIndex);
+                } else {
+                    loadTVStream(currentSourceIndex);
+                }
+            }
+        }
+        
+        clearTimeout(skipOutroTimeout);
+    }
+
+    function resetSkipButtons() {
+        skipIntroBtn.style.display = 'none';
+        skipOutroBtn.style.display = 'none';
+        if (skipIntroTimeout) clearTimeout(skipIntroTimeout);
+        if (skipOutroTimeout) clearTimeout(skipOutroTimeout);
     }
 
     // ========== API LOAD ==========
@@ -656,26 +900,59 @@
             } else {
                 url = `${API_BASE}/movie/popular?api_key=${TMDB_API_KEY}&page=${currentPage}`;
             }
-        } else {
+        } else if (mediaType === 'tv') {
             if (activeGenreId) {
                 url = `${API_BASE}/discover/tv?api_key=${TMDB_API_KEY}&with_genres=${activeGenreId}&page=${currentPage}`;
             } else {
                 url = `${API_BASE}/tv/popular?api_key=${TMDB_API_KEY}&page=${currentPage}`;
+            }
+        } else if (mediaType === 'anime') {
+            if (activeGenreId) {
+                await loadAnimeContent(activeGenreId);
+                hideLoading();
+                return;
+            } else {
+                await loadAnimeContent(null);
+                hideLoading();
+                return;
             }
         }
         try {
             const res = await fetch(url, { headers: { 'Authorization': `Bearer ${TMDB_READ_TOKEN}` } });
             const data = await res.json();
             currentItems = data.results || [];
-            renderItems(currentItems);
+            renderItems(currentItems, mediaType);
         } catch (e) {
             grid.innerHTML = '<p style="color:red;text-align:center;">Error</p>';
         } finally { hideLoading(); }
     }
 
+    async function loadAnimeContent(genreId) {
+        const movieUrl = `${API_BASE}/discover/movie?api_key=${TMDB_API_KEY}&with_genres=16&with_original_language=ja&page=${currentPage}&sort_by=popularity.desc`;
+        const tvUrl = `${API_BASE}/discover/tv?api_key=${TMDB_API_KEY}&with_genres=16&with_original_language=ja&page=${currentPage}&sort_by=popularity.desc`;
+        try {
+            const [movieRes, tvRes] = await Promise.all([
+                fetch(movieUrl, { headers: { 'Authorization': `Bearer ${TMDB_READ_TOKEN}` } }),
+                fetch(tvUrl, { headers: { 'Authorization': `Bearer ${TMDB_READ_TOKEN}` } })
+            ]);
+            const movieData = await movieRes.json();
+            const tvData = await tvRes.json();
+            let combined = [...(movieData.results || []).map(m => ({...m, media_type: 'movie'})),
+                           ...(tvData.results || []).map(t => ({...t, media_type: 'tv'}))];
+            combined.sort((a,b) => (b.popularity||0) - (a.popularity||0));
+            currentItems = combined;
+            renderItems(combined, 'anime');
+        } catch (e) { grid.innerHTML = '<p>Error loading anime</p>'; }
+    }
+
     async function loadMoreContent() {
         if (isLoading) return;
         showLoading();
+        if (mediaType === 'anime') {
+            await loadAnimeContent(activeGenreId);
+            hideLoading();
+            return;
+        }
         let url = '';
         if (mediaType === 'movie') {
             if (activeGenreId) {
@@ -694,7 +971,7 @@
             const res = await fetch(url, { headers: { 'Authorization': `Bearer ${TMDB_READ_TOKEN}` } });
             const data = await res.json();
             if (data.results) {
-                renderItems(data.results, true);
+                renderItems(data.results, mediaType, true);
             }
         } catch (e) {} finally { hideLoading(); }
     }
@@ -702,6 +979,24 @@
     async function searchContent(query) {
         showLoading();
         grid.innerHTML = '';
+        if (mediaType === 'anime') {
+            const movieUrl = `${API_BASE}/search/movie?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(query)}&page=${currentPage}&language=ja`;
+            const tvUrl = `${API_BASE}/search/tv?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(query)}&page=${currentPage}&language=ja`;
+            try {
+                const [mRes, tRes] = await Promise.all([
+                    fetch(movieUrl, { headers: { 'Authorization': `Bearer ${TMDB_READ_TOKEN}` } }),
+                    fetch(tvUrl, { headers: { 'Authorization': `Bearer ${TMDB_READ_TOKEN}` } })
+                ]);
+                const mData = await mRes.json();
+                const tData = await tRes.json();
+                let combined = [...(mData.results || []).map(m => ({...m, media_type: 'movie'})),
+                               ...(tData.results || []).map(t => ({...t, media_type: 'tv'}))];
+                currentItems = combined;
+                renderItems(combined, 'anime');
+            } catch(e){}
+            hideLoading();
+            return;
+        }
         let url = mediaType === 'movie' 
             ? `${API_BASE}/search/movie?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(query)}&page=${currentPage}`
             : `${API_BASE}/search/tv?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(query)}&page=${currentPage}`;
@@ -709,58 +1004,68 @@
             const res = await fetch(url, { headers: { 'Authorization': `Bearer ${TMDB_READ_TOKEN}` } });
             const data = await res.json();
             currentItems = data.results || [];
-            renderItems(currentItems);
+            renderItems(currentItems, mediaType);
         } catch (e) {} finally { hideLoading(); }
     }
 
-    function renderItems(items, append = false) {
+    function renderItems(items, type, append = false) {
         if (!append) grid.innerHTML = '';
         items.forEach(item => {
-            grid.appendChild(createCard(item));
+            grid.appendChild(createCard(item, type));
         });
     }
 
-    function createCard(item) {
+    function createCard(item, forcedType) {
         const card = document.createElement('div');
         card.className = 'movie-card';
-        const title = mediaType === 'movie' ? item.title : item.name;
-        const date = mediaType === 'movie' ? item.release_date : item.first_air_date;
+        let type = forcedType || mediaType;
+        if (item.media_type) type = item.media_type;
+        const title = (type === 'movie') ? (item.title || item.name) : (item.name || item.title);
+        const date = (type === 'movie') ? (item.release_date) : (item.first_air_date);
         const year = date ? date.slice(0,4) : 'N/A';
         const rating = item.vote_average || 0;
         const ratingClass = rating >= 7.5 ? 'green' : rating >= 5 ? 'orange' : 'red';
         const poster = item.poster_path ? IMG_BASE+item.poster_path : 'https://via.placeholder.com/300x450?text=No+Poster';
         card.innerHTML = `
             <img class="movie-poster" src="${poster}" alt="${title}" loading="lazy">
-            ${mediaType==='tv'?'<span class="tv-badge">TV</span>':''}
+            ${type==='tv'?'<span class="tv-badge">TV</span>':''}
             <div class="movie-info">
                 <h3>${title}</h3>
                 <div class="movie-meta"><span class="${ratingClass}"><i class="fas fa-star"></i>${rating.toFixed(1)}</span><span>${year}</span></div>
             </div>
-            <div class="play-overlay" data-id="${item.id}"><i class="fas fa-play"></i></div>
+            <div class="play-overlay" data-id="${item.id}" data-type="${type}"><i class="fas fa-play"></i></div>
         `;
         card.addEventListener('click', (e) => {
-            if (!e.target.closest('.play-overlay')) openPlayer(item.id);
+            if (!e.target.closest('.play-overlay')) openPlayer(item.id, type);
         });
         card.querySelector('.play-overlay').addEventListener('click', (e) => {
-            e.stopPropagation(); openPlayer(item.id);
+            e.stopPropagation(); openPlayer(item.id, type);
         });
         return card;
     }
 
-    // ========== PLAYER (identical to original, just referencing same functions) ==========
-    async function openPlayer(itemId) {
+    // ========== PLAYER ==========
+    async function openPlayer(itemId, forcedType) {
         currentItemId = itemId;
+        const type = forcedType || mediaType;
         const options = { headers: { 'Authorization': `Bearer ${TMDB_READ_TOKEN}` } };
         try {
             showLoading();
-            if (mediaType === 'movie') {
+            if (type === 'movie') {
                 const details = await fetch(`${API_BASE}/movie/${itemId}?api_key=${TMDB_API_KEY}`, options).then(r=>r.json());
                 updateModalInfo(details, 'movie');
                 movieTitleHeader.textContent = details.title;
                 tvControls.style.display = 'none';
-                createSourceButtons('movie');
+                langToggleContainer.style.display = 'none';
+                if (mediaType === 'anime') {
+                    langToggleContainer.style.display = 'flex';
+                    createAnimeSourceButtons('movie');
+                } else {
+                    createSourceButtons('movie');
+                }
                 currentSourceIndex = 0;
-                loadMovieStream(0);
+                if (mediaType === 'anime') loadAnimeStream(0, 'movie');
+                else loadMovieStream(0);
             } else {
                 const details = await fetch(`${API_BASE}/tv/${itemId}?api_key=${TMDB_API_KEY}`, options).then(r=>r.json());
                 currentTVDetails = details;
@@ -768,16 +1073,27 @@
                 movieTitleHeader.textContent = details.name;
                 setupSeasonSelector(details);
                 tvControls.style.display = 'flex';
-                createSourceButtons('tv');
+                langToggleContainer.style.display = mediaType==='anime'?'flex':'none';
+                if (mediaType === 'anime') {
+                    createAnimeSourceButtons('tv');
+                } else {
+                    createSourceButtons('tv');
+                }
                 if (details.seasons?.length) {
                     currentSeason = details.seasons[0].season_number || 1;
                     await loadEpisodesForSeason(currentSeason);
                 }
                 currentSourceIndex = 0;
-                loadTVStream(0);
+                if (mediaType === 'anime') loadAnimeStream(0, 'tv');
+                else loadTVStream(0);
             }
             modal.style.display = 'block';
             document.body.style.overflow = 'hidden';
+            
+            // Setup skip buttons for TV/Anime
+            if (type === 'tv' || mediaType === 'anime') {
+                setupSkipButtons();
+            }
         } catch (err) {
             alert('Cannot open player');
         } finally { hideLoading(); }
@@ -814,6 +1130,26 @@
                 currentSourceIndex = idx;
                 if (type === 'movie') loadMovieStream(idx);
                 else loadTVStream(idx);
+                resetSkipButtons();
+            });
+            sourceButtons.appendChild(btn);
+        });
+    }
+
+    function createAnimeSourceButtons(aniType) {
+        const sources = STREAMING_SOURCES.anime[aniType] || [];
+        sourceButtons.innerHTML = '';
+        sources.forEach((src, idx) => {
+            const btn = document.createElement('button');
+            btn.className = 'source-btn' + (idx===0?' active':'');
+            btn.textContent = src.name + (currentLang==='dub'?' (DUB)':' (SUB)');
+            btn.dataset.index = idx;
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.source-btn').forEach(b=>b.classList.remove('active'));
+                btn.classList.add('active');
+                currentSourceIndex = idx;
+                loadAnimeStream(idx, aniType);
+                resetSkipButtons();
             });
             sourceButtons.appendChild(btn);
         });
@@ -836,16 +1172,37 @@
         const url = sources[index].url(currentItemId, currentSeason, currentEpisode);
         playerError.style.display = 'none';
         player.src = '';
-        setTimeout(() => { player.src = url; }, 100);
+        setTimeout(() => { player.src = url; setupSkipButtons(); }, 100);
+    }
+
+    function loadAnimeStream(index, aniType) {
+        const sources = STREAMING_SOURCES.anime[aniType] || [];
+        if (index >= sources.length) { tryNextSource(0); return; }
+        currentSourceIndex = index;
+        let url;
+        if (aniType === 'movie') {
+            url = sources[index].url(currentItemId, currentLang);
+        } else {
+            url = sources[index].url(currentItemId, currentSeason, currentEpisode, currentLang);
+        }
+        playerError.style.display = 'none';
+        player.src = '';
+        setTimeout(() => { player.src = url; setupSkipButtons(); }, 100);
     }
 
     function tryNextSource(nextIdx) {
-        if (mediaType === 'movie') loadMovieStream(nextIdx);
+        if (mediaType === 'anime') {
+            let aniType = currentTVDetails ? 'tv' : 'movie';
+            loadAnimeStream(nextIdx, aniType);
+        } else if (mediaType === 'movie') loadMovieStream(nextIdx);
         else loadTVStream(nextIdx);
     }
 
     function reloadCurrentSource() {
-        if (mediaType === 'movie') loadMovieStream(currentSourceIndex);
+        if (mediaType === 'anime') {
+            let aniType = currentTVDetails ? 'tv' : 'movie';
+            loadAnimeStream(currentSourceIndex, aniType);
+        } else if (mediaType === 'movie') loadMovieStream(currentSourceIndex);
         else loadTVStream(currentSourceIndex);
     }
 
@@ -877,6 +1234,7 @@
         modal.style.display = 'none';
         document.body.style.overflow = 'auto';
         playerError.style.display = 'none';
+        resetSkipButtons();
     }
 
     function toggleFullscreenModal() {
@@ -896,13 +1254,11 @@
 <!-- cancel any adds popup (simple alert override) – optional but prevents some adds -->
 <script>
     window.addEventListener('load', function() {
-        // in case any adds try to create popups, we cancel them:
         const originalAlert = window.alert;
         window.alert = function(msg) {
-            if (msg && msg.toString().toLowerCase().includes('add')) return; // cancel adds alert
+            if (msg && msg.toString().toLowerCase().includes('add')) return;
             originalAlert(msg);
         };
-        // also attempt to prevent window.open for ads
         const originalOpen = window.open;
         window.open = function(url, ...rest) {
             if (url && (url.includes('ad') || url.includes('pop'))) {
