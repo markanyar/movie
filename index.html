@@ -1131,16 +1131,11 @@
     }
 
     function setupSkipIntro() {
-        // Show skip intro button 5 seconds after episode starts
         setTimeout(() => {
             if (currentModalType === 'tv' || currentIsAnime) {
                 showSkipButton('skip-intro-btn', 'skip-intro-timer', 8, () => {
-                    // Skip to 1:30 (typical intro end time)
-                    // Note: Cannot control iframe video directly, so we simulate by showing message
                     const player = document.getElementById('movie-player');
-                    // Reload with time parameter if supported by source
                     const currentSrc = player.src;
-                    // Try to add time parameter to skip intro
                     player.src = currentSrc + (currentSrc.includes('?') ? '&' : '?') + 'start=90';
                 });
             }
@@ -1148,15 +1143,13 @@
     }
 
     function setupSkipOutro() {
-        // Detect when episode is near end (simulate with timer for demo)
-        // In real implementation, you'd monitor video currentTime
         setTimeout(() => {
             if ((currentModalType === 'tv' || currentIsAnime) && currentEpisode < maxEpisodes) {
                 showSkipButton('skip-outro-btn', 'skip-outro-timer', 10, () => {
                     playNextEpisode();
                 });
             }
-        }, 120000); // Show after 2 minutes for demo (would be dynamic based on video duration)
+        }, 120000);
     }
 
     function showNextEpisodeButton() {
@@ -1174,7 +1167,6 @@
             hideAllSkipButtons();
             loadEpisodes(currentModalId, currentSeason);
             
-            // Reset skip timers for new episode
             setTimeout(() => {
                 setupSkipIntro();
                 setupSkipOutro();
@@ -1182,17 +1174,17 @@
         }
     }
 
-    // MODIFIED SOURCE BUILDER - Removed VidLink, kept other sources with audio-friendly settings
+    // UPDATED SOURCE BUILDER - VidLink restored with autoplay sound parameters
     function buildSourceButtons(type, id, season, episode, audioLang, isAnime) {
         const container = document.getElementById('source-buttons');
         container.innerHTML = '';
         
-        // Determine if we should add dub parameter for anime
         const dubParam = (isAnime && audioLang === 'dub') ? '&dub=true' : '';
         const langParam = (isAnime && audioLang === 'dub') ? '&lang=en' : '';
         
-        // STREAMING SOURCES - VidLink removed due to audio issues
+        // ALL STREAMING SOURCES - VidLink included with autoplay sound enabled
         const sources = [
+            { name: 'VidLink', url: `https://vidlink.pro/${type}/${id}${type==='tv'?`/${season}/${episode}`:''}?autoplay=1&mute=0` },
             { name: 'VidSrc', url: `https://vidsrc.xyz/embed/${type}?tmdb=${id}${type==='tv'?`&season=${season}&episode=${episode}`:''}${dubParam}` },
             { name: '2Embed', url: `https://www.2embed.cc/embed${type==='movie'?`/movie/${id}`:`/tv/${id}&s=${season}&e=${episode}`}` },
             { name: 'AutoEmbed', url: `https://multiembed.mov/direct/?video_id=${id}&s=${season||''}&e=${episode||''}&type=${type}${langParam}` },
@@ -1206,13 +1198,10 @@
             btn.innerText = s.name;
             btn.onclick = () => {
                 currentSourceIndex = index;
-                let finalUrl = s.url;
-                document.getElementById('movie-player').src = finalUrl;
-                // Update active state
+                document.getElementById('movie-player').src = s.url;
                 document.querySelectorAll('.source-btn').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
                 
-                // Reset skip functionality when changing sources
                 hideAllSkipButtons();
                 if (type === 'tv' || isAnime) {
                     setTimeout(() => {
@@ -1224,7 +1213,6 @@
             container.appendChild(btn);
         });
         
-        // Auto-load first source
         if (sources.length > 0) {
             document.getElementById('movie-player').src = sources[0].url;
         }
@@ -1244,7 +1232,6 @@
         currentEpisode = 1;
         currentSourceIndex = 0;
         
-        // Clear any existing skip timers
         hideAllSkipButtons();
         
         const options = { headers: { 'Authorization': `Bearer ${TMDB_READ_TOKEN}` } };
@@ -1268,7 +1255,6 @@
                 document.getElementById('movie-title-header').innerText = 'Error loading';
             });
         
-        // Show/hide language toggle for anime
         const langToggle = document.getElementById('lang-toggle-container');
         if (isAnime) {
             langToggle.style.display = 'flex';
@@ -1299,13 +1285,11 @@
                     }
                     currentSeason = data.seasons?.find(s=>s.season_number>0)?.season_number || 1;
                     
-                    // Get max episodes for next episode functionality
                     const currentSeasonData = data.seasons?.find(s => s.season_number === currentSeason);
                     maxEpisodes = currentSeasonData?.episode_count || 0;
                     
                     loadEpisodes(id, currentSeason);
                     
-                    // Setup skip functionality for series
                     setTimeout(() => {
                         setupSkipIntro();
                         setupSkipOutro();
@@ -1347,7 +1331,6 @@
         hideAllSkipButtons();
         loadEpisodes(currentModalId, currentSeason);
         
-        // Reset skip timers for new season
         setTimeout(() => {
             setupSkipIntro();
             setupSkipOutro();
@@ -1359,7 +1342,6 @@
         hideAllSkipButtons();
         buildSourceButtons(currentModalType, currentModalId, currentSeason, currentEpisode, currentAudioLang, currentIsAnime);
         
-        // Reset skip timers for new episode
         setTimeout(() => {
             setupSkipIntro();
             setupSkipOutro();
@@ -1370,7 +1352,6 @@
         document.getElementById('lang-sub').classList.add('active');
         document.getElementById('lang-dub').classList.remove('active');
         currentAudioLang = 'sub';
-        // Rebuild sources with SUB preference
         if (currentModalType === 'tv') {
             buildSourceButtons(currentModalType, currentModalId, currentSeason, currentEpisode, 'sub', currentIsAnime);
         } else {
@@ -1382,7 +1363,6 @@
         document.getElementById('lang-dub').classList.add('active');
         document.getElementById('lang-sub').classList.remove('active');
         currentAudioLang = 'dub';
-        // Rebuild sources with DUB preference
         if (currentModalType === 'tv') {
             buildSourceButtons(currentModalType, currentModalId, currentSeason, currentEpisode, 'dub', currentIsAnime);
         } else {
@@ -1415,7 +1395,6 @@
         }, 100);
     });
 
-    // Close modal on escape key
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
             const modal = document.getElementById('movie-modal');
@@ -1436,15 +1415,13 @@
     })();
 })();
 
-// ENHANCED AD BLOCKER - Blocks popups, redirects, and common ad patterns
+// ENHANCED AD BLOCKER
 (function() {
     'use strict';
     
-    // Block popups and redirects
     const originalOpen = window.open;
     const originalLocationAssign = window.location.assign;
     const originalLocationReplace = window.location.replace;
-    const originalHref = Object.getOwnPropertyDescriptor(window.location, 'href');
     
     const blockedPatterns = [
         'ad', 'pop', 'click', 'redirect', 'popup', 'banner', 
@@ -1463,7 +1440,6 @@
         return blockedPatterns.some(pattern => lowerUrl.includes(pattern));
     }
     
-    // Override window.open
     window.open = function(url, ...rest) {
         if (isBlocked(url)) {
             console.warn('🚫 Blocked popup:', url);
@@ -1472,7 +1448,6 @@
         return originalOpen.call(window, url, ...rest);
     };
     
-    // Override location methods
     window.location.assign = function(url) {
         if (isBlocked(url)) {
             console.warn('🚫 Blocked redirect (assign):', url);
@@ -1489,9 +1464,7 @@
         return originalLocationReplace.call(window.location, url);
     };
     
-    // Block beforeunload prompts (common ad tactic)
     window.addEventListener('beforeunload', function(e) {
-        // Check if it's a real user navigation or ad-triggered
         if (!e.isTrusted) {
             e.preventDefault();
             e.returnValue = '';
@@ -1499,12 +1472,10 @@
         }
     }, true);
     
-    // Mutation observer to remove ad elements
     const observer = new MutationObserver(function(mutations) {
         mutations.forEach(function(mutation) {
             mutation.addedNodes.forEach(function(node) {
-                if (node.nodeType === 1) { // Element node
-                    // Remove iframes with ad sources
+                if (node.nodeType === 1) {
                     if (node.tagName === 'IFRAME') {
                         const src = node.src || '';
                         if (isBlocked(src) || node.style.position === 'fixed' || node.style.zIndex > 10000) {
@@ -1512,7 +1483,6 @@
                             node.remove();
                         }
                     }
-                    // Remove suspicious divs
                     if (node.tagName === 'DIV' || node.tagName === 'SECTION') {
                         const id = (node.id || '').toLowerCase();
                         const cls = (node.className || '').toLowerCase();
@@ -1520,7 +1490,7 @@
                             id.includes('popup') || cls.includes('popup') ||
                             id.includes('banner') || cls.includes('banner')) {
                             if (node.offsetWidth < 10 || node.offsetHeight < 10) {
-                                node.remove(); // Hidden tracking elements
+                                node.remove();
                             }
                         }
                     }
@@ -1531,7 +1501,6 @@
     
     observer.observe(document.body, { childList: true, subtree: true });
     
-    // Block common ad scripts
     const originalAppendChild = Element.prototype.appendChild;
     const originalInsertBefore = Element.prototype.insertBefore;
     
@@ -1565,7 +1534,6 @@
         return originalInsertBefore.call(this, node, ref);
     };
     
-    // Block click events on ad elements
     document.addEventListener('click', function(e) {
         const target = e.target;
         const href = target.href || target.closest('a')?.href || '';
