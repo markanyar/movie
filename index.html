@@ -1182,62 +1182,24 @@
         }
     }
 
+    // ORIGINAL SOURCE BUILDER - Restored to original version with all streaming sources
     function buildSourceButtons(type, id, season, episode, audioLang, isAnime) {
         const container = document.getElementById('source-buttons');
         container.innerHTML = '';
         
-        let sources = [];
+        // Determine if we should add dub parameter for anime
+        const dubParam = (isAnime && audioLang === 'dub') ? '&dub=true' : '';
+        const langParam = (isAnime && audioLang === 'dub') ? '&lang=en' : '';
         
-        // ANIME-SPECIFIC SOURCES with proper SUB/DUB support
-        if (isAnime) {
-            const subParam = audioLang === 'sub' ? 'sub' : 'dub';
-            
-            // DAnimestream - anime specific with sub/dub
-            sources.push({ 
-                name: 'DAnimestream', 
-                url: `https://danimestream.xyz/embed/${id}?type=${type}&lang=${subParam}${type==='tv'?`&s=${season}&e=${episode}`:''}`
-            });
-            
-            // Crunchyroll-style embed (using alternative anime embed)
-            sources.push({ 
-                name: 'Crunchyroll', 
-                url: `https://crunchyroll.com/${subParam === 'dub' ? 'dub' : 'watch'}/${id}${type==='tv'?`/season-${season}-episode-${episode}`:''}`
-            });
-            
-            // Funimation-style embed (using alternative anime embed)
-            sources.push({ 
-                name: 'Funimation', 
-                url: `https://funimation.com/${subParam === 'dub' ? 'dubbed' : 'subbed'}/${id}${type==='tv'?`?s=${season}&e=${episode}`:''}`
-            });
-            
-            // Additional anime sources with sub/dub support
-            sources.push({ 
-                name: 'AnimeHeaven', 
-                url: `https://animeheaven.ru/embed/${id}?lang=${subParam}${type==='tv'?`&s=${season}&e=${episode}`:''}`
-            });
-            
-            sources.push({ 
-                name: '9Anime', 
-                url: `https://9anime.to/watch/${id}?lang=${subParam}${type==='tv'?`&s=${season}&e=${episode}`:''}`
-            });
-            
-            // Generic fallback for anime
-            sources.push({ 
-                name: 'VidSrc', 
-                url: `https://vidsrc.xyz/embed/${type}?tmdb=${id}${type==='tv'?`&season=${season}&episode=${episode}`:''}${audioLang==='dub'?'&dub=true':''}`
-            });
-            
-        } else {
-            // MOVIE/TV SOURCES (unchanged)
-            sources = [
-                { name: 'VidSrc', url: `https://vidsrc.xyz/embed/${type}?tmdb=${id}${type==='tv'?`&season=${season}&episode=${episode}`:''}` },
-                { name: '2Embed', url: `https://www.2embed.cc/embed${type==='movie'?`/movie/${id}`:`/tv/${id}&s=${season}&e=${episode}`}` },
-                { name: 'AutoEmbed', url: `https://multiembed.mov/direct/?video_id=${id}&s=${season||''}&e=${episode||''}&type=${type}` },
-                { name: 'SuperEmbed', url: `https://vidsrc.net/embed/${type}/${id}${type==='tv'?`/${season}/${episode}`:''}` },
-                { name: 'Embed.SU', url: `https://embed.su/embed/${type}/${id}${type==='tv'?`/${season}/${episode}`:''}` },
-                { name: 'VidLink', url: `https://vidlink.pro/${type}/${id}${type==='tv'?`/${season}/${episode}`:''}` }
-            ];
-        }
+        // ALL STREAMING SOURCES - Same for Movies, TV, and Anime
+        const sources = [
+            { name: 'VidSrc', url: `https://vidsrc.xyz/embed/${type}?tmdb=${id}${type==='tv'?`&season=${season}&episode=${episode}`:''}${dubParam}` },
+            { name: '2Embed', url: `https://www.2embed.cc/embed${type==='movie'?`/movie/${id}`:`/tv/${id}&s=${season}&e=${episode}`}` },
+            { name: 'AutoEmbed', url: `https://multiembed.mov/direct/?video_id=${id}&s=${season||''}&e=${episode||''}&type=${type}${langParam}` },
+            { name: 'SuperEmbed', url: `https://vidsrc.net/embed/${type}/${id}${type==='tv'?`/${season}/${episode}`:''}` },
+            { name: 'Embed.SU', url: `https://embed.su/embed/${type}/${id}${type==='tv'?`/${season}/${episode}`:''}` },
+            { name: 'VidLink', url: `https://vidlink.pro/${type}/${id}${type==='tv'?`/${season}/${episode}`:''}` }
+        ];
         
         sources.forEach((s, index) => {
             const btn = document.createElement('button');
@@ -1489,4 +1451,3 @@ window.addEventListener('load', function() {
 </script>
 </body>
 </html>
-
