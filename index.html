@@ -16,10 +16,7 @@
             display: flex;
             flex-direction: column;
         }
-        /* main content takes remaining space, footer stays at bottom */
-        .main-content {
-            flex: 1 0 auto;
-        }
+        .main-content { flex: 1 0 auto; }
         header {
             padding: 0.8rem 1rem;
             background: linear-gradient(to bottom, #000, #050505);
@@ -118,7 +115,6 @@
         }
         .type-btn.active { background: #e50914; color: white; box-shadow: 0 0 10px #e50914; }
 
-        /* ----- advanced filters (year, rating, sort) ----- */
         .extra-filters {
             display: flex;
             gap: 0.5rem;
@@ -187,15 +183,13 @@
         .card-scroll {
             display: flex;
             gap: 1rem;
-            overflow-x: auto;               /* allow horizontal scroll BUT with snap */
+            overflow-x: auto;
             scroll-snap-type: x mandatory;
             padding: 0.8rem 0.5rem 1.2rem;
             scroll-behavior: smooth;
             -webkit-overflow-scrolling: touch;
-            /* remove transform/transition – keep native scroll independent from main grid */
             will-change: scroll-position;
         }
-        /* hide scrollbar for cleaner look (optional) */
         .card-scroll::-webkit-scrollbar { display: none; }
         .card-scroll { -ms-overflow-style: none; scrollbar-width: none; }
 
@@ -211,7 +205,7 @@
             transition: 0.3s;
             box-shadow: 0 8px 16px rgba(0,0,0,0.8);
             margin-left: 0.5rem;
-            pointer-events: auto;            /* card click works, no global effect */
+            pointer-events: auto;
         }
         .slide-card:hover { transform: scale(1.02) translateY(-6px); border-color: #e50914; box-shadow: 0 0 30px #e50914; }
         .slide-poster {
@@ -247,7 +241,6 @@
         }
         .indicator-dot.active { background: #e50914; width: 28px; border-radius: 20px; }
 
-        /* Genre dropdown */
         .genre-dropdown-container {
             position: relative;
             min-width: 140px;
@@ -354,7 +347,6 @@
         }
         .movie-card:hover .play-overlay { opacity: 1; transform: translate(-50%,-50%) scale(1); }
 
-        /* pagination */
         .pagination-bar {
             display: flex; justify-content: center; align-items: center;
             gap: 1.5rem; margin: 1rem 0 2rem;
@@ -441,7 +433,6 @@
         .lang-btn.active { background: #e50914; border-color: #e50914; color: white; }
         .tv-controls select { background: #1a1a1a; color: white; border: 1px solid #444; border-radius: 40px; padding: 4px 10px; margin-right: 8px; }
 
-        /* ========== FOOTER - developed by MARK ANYAR ========== */
         .site-footer {
             flex-shrink: 0;
             background: #0a0a0a;
@@ -494,7 +485,6 @@
 </head>
 <body>
 
-<!-- main content wrapper to push footer down -->
 <div class="main-content">
     <header>
         <h1><i class="fas fa-film"></i> MARKANYAR</h1>
@@ -505,7 +495,6 @@
         <button class="user-btn" id="fullscreen-toggle"><i class="fas fa-expand"></i></button>
     </header>
 
-    <!-- FILTER ROW + Genre dropdown + advanced filters -->
     <div class="filters" id="filter-panel">
         <div class="filter-row">
             <div class="media-type-selector">
@@ -520,7 +509,6 @@
                 <div class="genre-dropdown-menu" id="genreDropdownMenu"></div>
             </div>
         </div>
-        <!-- advanced filter bar (year, rating, sort) -->
         <div class="extra-filters">
             <input type="number" id="filter-year" class="filter-input" placeholder="Year (eg 2022)" min="1900" max="2030">
             <input type="number" id="filter-rating" class="filter-input" placeholder="Min rating 1-10" min="0" max="10" step="0.5">
@@ -535,7 +523,6 @@
         </div>
     </div>
 
-    <!-- CAROUSEL – auto slide every 3 seconds (does NOT affect main grid scrolling) -->
     <div class="carousel-section">
         <div class="section-header">
             <h2><i class="fas fa-fire" style="color:#e50914;"></i> NOW PLAYING</h2>
@@ -547,10 +534,8 @@
         <div class="carousel-indicators" id="carousel-indicators"></div>
     </div>
 
-    <!-- main grid -->
     <div id="movies-grid"></div>
 
-    <!-- Pagination -->
     <div class="pagination-bar" id="pagination-controls">
         <button class="page-btn" id="prev-page" disabled><i class="fas fa-chevron-left"></i></button>
         <span id="page-indicator">Page 1</span>
@@ -558,7 +543,6 @@
     </div>
 </div>
 
-<!-- FOOTER - developed by MARK ANYAR (spicy credit) -->
 <footer class="site-footer">
     <span>
         <i class="fas fa-code"></i> 
@@ -570,7 +554,6 @@
     </span>
 </footer>
 
-<!-- MODAL (custom back button) -->
 <div id="movie-modal" class="movie-modal">
     <div class="modal-content">
         <div class="top-controls">
@@ -627,18 +610,15 @@
     let isLoading = false;
     let carouselItems = [];
 
-    // extra filter state
     let filterYear = '';
     let filterRating = '';
     let filterSort = 'popularity.desc';
 
-    // current modal item
     let currentModalId = null;
     let currentModalType = null;
     let currentSeason = 1, currentEpisode = 1;
-    let currentAudioLang = 'sub'; // 'sub' or 'dub'
+    let currentAudioLang = 'sub';
 
-    // DOM
     const grid = document.getElementById('movies-grid');
     const carouselEl = document.getElementById('latest-carousel');
     const searchInput = document.getElementById('search-input');
@@ -656,7 +636,6 @@
     const filterSortSelect = document.getElementById('filter-sort');
     const applyFilterBtn = document.getElementById('apply-filter');
 
-    // load genres
     async function loadGenres() {
         const options = { headers: { 'Authorization': `Bearer ${TMDB_READ_TOKEN}` } };
         try {
@@ -694,7 +673,6 @@
     genreDropdownBtn.addEventListener('click', (e) => { e.stopPropagation(); genreDropdownMenu.classList.toggle('show'); });
     document.addEventListener('click', (e) => { if (!document.getElementById('genreDropdownContainer').contains(e.target)) genreDropdownMenu.classList.remove('show'); });
 
-    // CAROUSEL - load items and fetch YouTube trailer keys
     async function loadCarousel() {
         try {
             const options = { headers: { 'Authorization': `Bearer ${TMDB_READ_TOKEN}` } };
@@ -714,7 +692,7 @@
                 ...(animeMovie.results || []).slice(0,3).map(a => ({...a, media_type:'movie', isAnime:true})),
                 ...(animeTv.results || []).slice(0,3).map(a => ({...a, media_type:'tv', isAnime:true}))
             ];
-            slides.sort((a,b) => (b.popularity||0) - (a.popularity||0)).slice(0,12);
+            slides.sort((a,b) => (b.popularity||0) - (a.popularity||0));
             carouselItems = slides;
 
             for (let item of carouselItems) {
@@ -728,8 +706,8 @@
             }
 
             renderCarousel(carouselItems);
-            createIndicators(carouselItems.slice(0,10).length);
-            startAutoSlide(3000); // 3 seconds auto slide
+            createIndicators(Math.min(carouselItems.length, 10));
+            startAutoSlide(3000);
         } catch (e) { console.warn('carousel error', e); }
     }
 
@@ -755,7 +733,6 @@
             index = (index + 1) % total;
             const card = scrollContainer.children[index];
             if (card) {
-                // use scrollTo for smooth movement without affecting main page
                 card.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
             }
             updateIndicators();
@@ -797,7 +774,6 @@
         });
     }
 
-    // grid with advanced filters (no loading spinner calls)
     async function loadGridContent() {
         if (isLoading) return;
         isLoading = true;
@@ -873,7 +849,6 @@
         return card;
     }
 
-    // Search
     searchInput.addEventListener('input', (e) => {
         clearTimeout(window.searchDelay);
         window.searchDelay = setTimeout(() => {
@@ -920,11 +895,9 @@
         loadGridContent();
     });
 
-    // === MULTI-SOURCE + SUB/DUB support ===
     function buildSourceButtons(type, id, season, episode, audioLang) {
         const container = document.getElementById('source-buttons');
         container.innerHTML = '';
-        // More streaming sites added (6 sources)
         const sources = [
             { name: 'VidSrc', url: `https://vidsrc.xyz/embed/${type}?tmdb=${id}${type==='tv'?`&season=${season}&episode=${episode}`:''}` },
             { name: '2Embed', url: `https://www.2embed.cc/embed${type==='movie'?`/movie/${id}`:`/tv/${id}&s=${season}&e=${episode}`}` },
@@ -939,7 +912,7 @@
             btn.innerText = s.name;
             btn.onclick = () => {
                 let finalUrl = s.url;
-                if (mediaType === 'anime' && audioLang === 'dub') {
+                if (type === 'anime' && audioLang === 'dub') {
                     finalUrl += finalUrl.includes('?') ? '&lang=en' : '?lang=en';
                 }
                 document.getElementById('movie-player').src = finalUrl;
@@ -990,7 +963,7 @@
             document.getElementById('tv-controls').style.display = 'none';
         }
 
-        document.getElementById('lang-toggle-container').style.display = mediaType === 'anime' ? 'block' : 'none';
+        document.getElementById('lang-toggle-container').style.display = type === 'anime' ? 'block' : 'none';
         currentAudioLang = 'sub';
         document.getElementById('lang-sub').classList.add('active');
         document.getElementById('lang-dub').classList.remove('active');
@@ -1037,7 +1010,6 @@
         buildSourceButtons(currentModalType, currentModalId, currentSeason, currentEpisode, 'dub');
     });
 
-    // Modal controls (custom back button)
     document.getElementById('back-btn').addEventListener('click', ()=>{ 
         document.getElementById('movie-player').src=''; 
         document.getElementById('movie-modal').style.display='none'; 
@@ -1051,7 +1023,6 @@
         player.src = player.src; 
     });
 
-    // INIT
     (async () => {
         await loadGenres();
         buildGenreDropdown();
@@ -1059,16 +1030,14 @@
         loadGridContent();
     })();
 })();
-</script>
-<!-- block popup ads -->
-<script>
-    window.addEventListener('load', function() {
-        const originalOpen = window.open;
-        window.open = function(url, ...rest) {
-            if (url && (url.includes('ad') || url.includes('pop'))) { console.warn('ad blocked'); return null; }
-            return originalOpen.call(window, url, ...rest);
-        };
-    });
+
+window.addEventListener('load', function() {
+    const originalOpen = window.open;
+    window.open = function(url, ...rest) {
+        if (url && (url.includes('ad') || url.includes('pop'))) { console.warn('ad blocked'); return null; }
+        return originalOpen.call(window, url, ...rest);
+    };
+});
 </script>
 </body>
 </html>
