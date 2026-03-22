@@ -399,7 +399,7 @@
 <div id="movie-modal" class="movie-modal">
     <div class="modal-content">
         <div class="top-controls"><button id="back-btn"><i class="fas fa-arrow-left"></i></button><div id="movie-title-header" style="font-weight:600; font-size:1rem; max-width:60%; overflow:hidden; text-overflow:ellipsis;"></div><button id="refresh-player"><i class="fas fa-redo"></i></button></div>
-        <div class="player-main-area"><div class="player-container"><iframe id="movie-player" allowfullscreen referrerpolicy="no-referrer" allow="autoplay; encrypted-media; fullscreen" sandbox="allow-same-origin allow-scripts allow-popups allow-forms allow-modals allow-top-navigation-by-user-activation"></iframe></div></div>
+        <div class="player-main-area"><div class="player-container"><iframe id="movie-player" allowfullscreen referrerpolicy="no-referrer" allow="autoplay; encrypted-media; fullscreen"></iframe></div></div>
         <div class="info-bar"><div style="display:flex; gap:1rem; flex-wrap:wrap;"><img id="modal-poster" style="width:80px; height:120px; object-fit:cover; border-radius:12px;"><div style="flex:1;"><h2 id="modal-title"></h2><p id="modal-overview" style="color:#ccc; margin-top:6px; font-size:0.85rem;"></p><div id="lang-toggle-container" class="lang-toggle" style="display:none;"><span>Audio:</span><button id="lang-sub" class="lang-btn active">🇯🇵 SUB</button><button id="lang-dub" class="lang-btn">🇺🇸 DUB</button></div><div id="source-selector"><div class="source-group-title"><i class="fas fa-play-circle"></i> ADVANCED STREAMING SOURCES (Auto-Fallback + Anti-Block)</div><div class="source-buttons" id="source-buttons"></div><div class="warning-note"><i class="fas fa-shield-alt"></i> MultiEmbed, SmashyStream, DBGo, Filmxy, AutoEmbed, VidLink, 2Embed, Vidsrc — intelligent chain to bypass blocks.</div></div><div id="tv-controls" style="display:none; margin-top:1rem;"><select id="season-select" style="background:#1a1a1a; color:white; border:1px solid #e50914; padding:6px 12px; border-radius:20px;"></select> <select id="episode-select" style="background:#1a1a1a; color:white; border:1px solid #e50914; padding:6px 12px; border-radius:20px; margin-left:8px;"></select></div></div></div></div>
     </div>
 </div>
@@ -418,7 +418,7 @@
     let filterYear = '', filterRating = '', filterSort = 'popularity.desc';
     let currentModalId, currentModalType, currentIsAnime, currentSeason = 1, currentEpisode = 1;
     
-    // ✅ EXPANDED STREAMING SOURCES (anti-block + iframe flexible)
+    // ✅ EXPANDED STREAMING SOURCES (anti-block + iframe flexible - sandbox removed for full functionality)
     const STREAMING_SOURCES = [
         { name: 'VidLink', urlTemplate: (type, id, season, ep) => type === 'movie' ? `https://vidlink.pro/movie/${id}` : `https://vidlink.pro/tv/${id}/${season}/${ep}` },
         { name: 'VidSrc', urlTemplate: (type, id, season, ep) => type === 'movie' ? `https://vidsrc.xyz/embed/movie?tmdb=${id}` : `https://vidsrc.xyz/embed/tv?tmdb=${id}&season=${season}&episode=${ep}` },
@@ -551,7 +551,7 @@
         if(container.firstChild) container.firstChild.classList.add('active');
     }
     
-    // ---------- COUNTRY DROPDOWN with PRIORITY (BOLLYWOOD + NOLLYWOOD at top) ----------
+    // COUNTRY DROPDOWN with PRIORITY (BOLLYWOOD + NOLLYWOOD)
     const ALL_COUNTRIES = [
         { code: 'IN', name: '🇮🇳 BOLLYWOOD / India', priority:1 }, { code: 'NG', name: '🇳🇬 NOLLYWOOD / Nigeria', priority:2 },
         { code: 'US', name: '🇺🇸 United States' }, { code: 'GB', name: '🇬🇧 United Kingdom' }, { code: 'JP', name: '🇯🇵 Japan' },
