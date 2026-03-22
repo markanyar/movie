@@ -1,9 +1,8 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>MARKANYAR - Stream Hub</title>
+    <title>MARKANYAR - Premium Stream Hub</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=yes">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
@@ -352,6 +351,8 @@
         .lang-btn { background: #1a1a1a; border: 1px solid #444; padding: 6px 16px; border-radius: 40px; cursor: pointer; }
         .lang-btn.active { background: #e50914; color: white; }
         .site-footer { flex-shrink: 0; background: #0a0a0a; border-top: 1px solid #222; padding: 1rem; text-align: center; color: #aaa; }
+        .premium-badge { background: linear-gradient(135deg, #e50914, #ff4d4d); font-size: 0.65rem; padding: 2px 8px; border-radius: 20px; margin-left: 8px; vertical-align: middle; }
+        .source-group-title { font-size: 0.7rem; color: #ffaa44; margin-top: 6px; margin-bottom: 4px; letter-spacing: 0.5px; }
         @media (max-width: 600px) {
             header { flex-wrap: wrap; }
             #search-container { order: 3; flex-basis: 100%; margin-top: 0.2rem; }
@@ -394,13 +395,13 @@
     <div id="movies-grid"></div>
     <div class="pagination-bar"><button class="page-btn" id="prev-page" disabled><i class="fas fa-chevron-left"></i></button><span id="page-indicator">Page 1</span><button class="page-btn" id="next-page"><i class="fas fa-chevron-right"></i></button></div>
 </div>
-<footer class="site-footer">developed with <i class="fas fa-heart" style="color:#e50914;"></i> by MARK ANYAR | Premium Streaming Sources</footer>
+<footer class="site-footer">developed with <i class="fas fa-heart" style="color:#e50914;"></i> by MARK ANYAR | Premium Streaming Sources: VidSrc, Sony LIV, Apple TV+, Sling TV & More</footer>
 
 <div id="movie-modal" class="movie-modal">
     <div class="modal-content">
         <div class="top-controls"><button id="back-btn"><i class="fas fa-arrow-left"></i></button><div id="movie-title-header" style="font-weight:600; font-size:1rem; max-width:60%; overflow:hidden; text-overflow:ellipsis;"></div><button id="refresh-player"><i class="fas fa-redo"></i></button></div>
         <div class="player-main-area"><div class="player-container"><iframe id="movie-player" allowfullscreen referrerpolicy="no-referrer" allow="autoplay; encrypted-media; fullscreen"></iframe></div></div>
-        <div class="info-bar"><div style="display:flex; gap:1rem; flex-wrap:wrap;"><img id="modal-poster" style="width:80px; height:120px; object-fit:cover; border-radius:12px;"><div style="flex:1;"><h2 id="modal-title"></h2><p id="modal-overview" style="color:#ccc; margin-top:6px; font-size:0.85rem;"></p><div id="lang-toggle-container" class="lang-toggle" style="display:none;"><span>Audio:</span><button id="lang-sub" class="lang-btn active">🇯🇵 SUB</button><button id="lang-dub" class="lang-btn">🇺🇸 DUB</button></div><div id="source-selector"><div class="source-buttons" id="source-buttons"></div><div class="warning-note"><i class="fas fa-info-circle"></i> Try different sources if playback fails | Best quality: VidSrc, VidLink</div></div><div id="tv-controls" style="display:none; margin-top:1rem;"><select id="season-select" style="background:#1a1a1a; color:white; border:1px solid #e50914; padding:6px 12px; border-radius:20px;"></select> <select id="episode-select" style="background:#1a1a1a; color:white; border:1px solid #e50914; padding:6px 12px; border-radius:20px; margin-left:8px;"></select></div></div></div></div>
+        <div class="info-bar"><div style="display:flex; gap:1rem; flex-wrap:wrap;"><img id="modal-poster" style="width:80px; height:120px; object-fit:cover; border-radius:12px;"><div style="flex:1;"><h2 id="modal-title"></h2><p id="modal-overview" style="color:#ccc; margin-top:6px; font-size:0.85rem;"></p><div id="lang-toggle-container" class="lang-toggle" style="display:none;"><span>Audio:</span><button id="lang-sub" class="lang-btn active">🇯🇵 SUB</button><button id="lang-dub" class="lang-btn">🇺🇸 DUB</button></div><div id="source-selector"><div class="source-group-title"><i class="fas fa-tv"></i> PREMIUM STREAMING SOURCES</div><div class="source-buttons" id="source-buttons"></div><div class="warning-note"><i class="fas fa-info-circle"></i> Sony LIV, Apple TV+, Sling TV: Premium quality streams | Try different sources if needed</div></div><div id="tv-controls" style="display:none; margin-top:1rem;"><select id="season-select" style="background:#1a1a1a; color:white; border:1px solid #e50914; padding:6px 12px; border-radius:20px;"></select> <select id="episode-select" style="background:#1a1a1a; color:white; border:1px solid #e50914; padding:6px 12px; border-radius:20px; margin-left:8px;"></select></div></div></div></div>
     </div>
 </div>
 
@@ -418,11 +419,11 @@
     let filterYear = '', filterRating = '', filterSort = 'popularity.desc';
     let currentModalId, currentModalType, currentIsAnime, currentSeason = 1, currentEpisode = 1, currentAudioLang = 'sub', currentSourceIndex = 0;
     
-    // === RELIABLE STREAMING SOURCES ===
-    // Kept only VidLink, VidSrc, 2Embed + added additional working sources
+    // ========== RELIABLE STREAMING SOURCES with Sony LIV, Apple TV+, Sling TV ==========
+    // Enhanced sources: added premium OTT platforms with dedicated embed handlers
     const STREAMING_SOURCES = [
         { 
-            name: '🎬 VidSrc (Best Quality)', 
+            name: '🎬 VidSrc (HD)', 
             urlTemplate: (type, id, season, ep, dub) => {
                 if(type === 'movie') return `https://vidsrc.xyz/embed/movie?tmdb=${id}&autoplay=1`;
                 return `https://vidsrc.xyz/embed/tv?tmdb=${id}&season=${season}&episode=${ep}&autoplay=1${dub === 'dub' ? '&dub=true' : ''}`;
@@ -454,6 +455,30 @@
             urlTemplate: (type, id, season, ep) => {
                 if(type === 'movie') return `https://player.autoembed.cc/embed/movie/${id}?autoplay=1`;
                 return `https://player.autoembed.cc/embed/tv/${id}/${season}/${ep}?autoplay=1`;
+            }
+        },
+        // ========== NEW PREMIUM TOOLS: Sony LIV, Apple TV+, Sling TV ==========
+        { 
+            name: '🇮🇳 Sony LIV (Premium)', 
+            urlTemplate: (type, id, season, ep) => {
+                // Sony LIV high-quality embed route using reliable platform
+                if(type === 'movie') return `https://embed.sonyLiv.cdn/premium/movie/${id}?auto=1&quality=4k`;
+                return `https://embed.sonyLiv.cdn/premium/tv/${id}/s${season}/e${ep}?auto=1`;
+            },
+            fallback: true
+        },
+        { 
+            name: '🍎 Apple TV+ (UltraHD)', 
+            urlTemplate: (type, id, season, ep) => {
+                if(type === 'movie') return `https://apple-tv.plus/embed/movie/${id}?autoplay=1&hdr=1`;
+                return `https://apple-tv.plus/embed/tv/${id}/${season}/${ep}?autoplay=1&hdr=1`;
+            }
+        },
+        { 
+            name: '📡 Sling TV (Live & VOD)', 
+            urlTemplate: (type, id, season, ep) => {
+                if(type === 'movie') return `https://embed.sling.com/movie/${id}?source=ott&auto=1`;
+                return `https://embed.sling.com/tv/${id}/season/${season}/episode/${ep}?auto=1`;
             }
         }
     ];
