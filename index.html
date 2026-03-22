@@ -400,7 +400,7 @@
     <div class="modal-content">
         <div class="top-controls"><button id="back-btn"><i class="fas fa-arrow-left"></i></button><div id="movie-title-header" style="font-weight:600; font-size:1rem; max-width:60%; overflow:hidden; text-overflow:ellipsis;"></div><button id="refresh-player"><i class="fas fa-redo"></i></button></div>
         <div class="player-main-area"><div class="player-container"><iframe id="movie-player" allowfullscreen referrerpolicy="no-referrer" allow="autoplay; encrypted-media; fullscreen"></iframe></div></div>
-        <div class="info-bar"><div style="display:flex; gap:1rem; flex-wrap:wrap;"><img id="modal-poster" style="width:80px; height:120px; object-fit:cover; border-radius:12px;"><div style="flex:1;"><h2 id="modal-title"></h2><p id="modal-overview" style="color:#ccc; margin-top:6px; font-size:0.85rem;"></p><div id="lang-toggle-container" class="lang-toggle" style="display:none;"><span>Audio:</span><button id="lang-sub" class="lang-btn active">🇯🇵 SUB</button><button id="lang-dub" class="lang-btn">🇺🇸 DUB</button></div><div id="source-selector"><div class="source-group-title"><i class="fas fa-play-circle"></i> ADVANCED STREAMING SOURCES (Auto-Fallback + Anti-Block)</div><div class="source-buttons" id="source-buttons"></div><div class="warning-note"><i class="fas fa-shield-alt"></i> MultiEmbed, SmashyStream, DBGo, Filmxy, AutoEmbed, VidLink, 2Embed, Vidsrc — intelligent chain to bypass blocks.</div></div><div id="tv-controls" style="display:none; margin-top:1rem;"><select id="season-select" style="background:#1a1a1a; color:white; border:1px solid #e50914; padding:6px 12px; border-radius:20px;"></select> <select id="episode-select" style="background:#1a1a1a; color:white; border:1px solid #e50914; padding:6px 12px; border-radius:20px; margin-left:8px;"></select></div></div></div></div>
+        <div class="info-bar"><div style="display:flex; gap:1rem; flex-wrap:wrap;"><img id="modal-poster" style="width:80px; height:120px; object-fit:cover; border-radius:12px;"><div style="flex:1;"><h2 id="modal-title"></h2><p id="modal-overview" style="color:#ccc; margin-top:6px; font-size:0.85rem;"></p><div id="lang-toggle-container" class="lang-toggle" style="display:none;"><span>Audio:</span><button id="lang-sub" class="lang-btn active">🇯🇵 SUB</button><button id="lang-dub" class="lang-btn">🇺🇸 DUB</button></div><div id="source-selector"><div class="source-group-title"><i class="fas fa-play-circle"></i> PREMIUM STREAMING SOURCES (Auto-Fallback + Anti-Block)</div><div class="source-buttons" id="source-buttons"></div><div class="warning-note"><i class="fas fa-shield-alt"></i> Elite multi-embed chain: VidLink, Vidsrc, 2Embed, MultiEmbed, SmashyStream, AutoEmbed, DBGo, Filmxy — intelligent bypass & lowest block rate.</div></div><div id="tv-controls" style="display:none; margin-top:1rem;"><select id="season-select" style="background:#1a1a1a; color:white; border:1px solid #e50914; padding:6px 12px; border-radius:20px;"></select> <select id="episode-select" style="background:#1a1a1a; color:white; border:1px solid #e50914; padding:6px 12px; border-radius:20px; margin-left:8px;"></select></div></div></div></div>
     </div>
 </div>
 
@@ -417,9 +417,10 @@
     let currentPage = 1, totalPages = 10;
     let filterYear = '', filterRating = '', filterSort = 'popularity.desc';
     let currentModalId, currentModalType, currentIsAnime, currentSeason = 1, currentEpisode = 1;
+    let searchQuery = '';
     
-    // ✅ EXPANDED STREAMING SOURCES (anti-block + iframe flexible - sandbox removed for full functionality)
-    const STREAMING_SOURCES = [
+    // ✅ BEST STREAMING SOURCES - High reliability, minimal blocking, wide coverage
+    const PREMIUM_STREAMING_SOURCES = [
         { name: 'VidLink', urlTemplate: (type, id, season, ep) => type === 'movie' ? `https://vidlink.pro/movie/${id}` : `https://vidlink.pro/tv/${id}/${season}/${ep}` },
         { name: 'VidSrc', urlTemplate: (type, id, season, ep) => type === 'movie' ? `https://vidsrc.xyz/embed/movie?tmdb=${id}` : `https://vidsrc.xyz/embed/tv?tmdb=${id}&season=${season}&episode=${ep}` },
         { name: '2Embed', urlTemplate: (type, id, season, ep) => type === 'movie' ? `https://www.2embed.cc/embed/movie/${id}` : `https://www.2embed.cc/embed/tv/${id}&s=${season}&e=${ep}` },
@@ -427,33 +428,51 @@
         { name: 'SmashyStream', urlTemplate: (type, id, season, ep) => type === 'movie' ? `https://embed.smashystream.com/playere.php?tmdb=${id}` : `https://embed.smashystream.com/playere.php?tmdb=${id}&season=${season}&episode=${ep}` },
         { name: 'AutoEmbed', urlTemplate: (type, id, season, ep) => type === 'movie' ? `https://autoembed.cc/embed/movie/${id}` : `https://autoembed.cc/embed/tv/${id}/${season}/${ep}` },
         { name: 'DBGo', urlTemplate: (type, id, season, ep) => type === 'movie' ? `https://dbgo.fun/movie/${id}` : `https://dbgo.fun/tv/${id}/${season}/${ep}` },
-        { name: 'Filmxy', urlTemplate: (type, id, season, ep) => type === 'movie' ? `https://www.filmxy.vip/embed/${id}` : `https://www.filmxy.vip/embed/${id}/${season}-${ep}` }
+        { name: 'Filmxy', urlTemplate: (type, id, season, ep) => type === 'movie' ? `https://www.filmxy.vip/embed/${id}` : `https://www.filmxy.vip/embed/${id}/${season}-${ep}` },
+        { name: 'VidStream', urlTemplate: (type, id, season, ep) => type === 'movie' ? `https://vidstream.pro/embed/${id}` : `https://vidstream.pro/embed/${id}/${season}/${ep}` },
+        { name: 'PrimeWire', urlTemplate: (type, id, season, ep) => type === 'movie' ? `https://primewire.tf/embed/movie/${id}` : `https://primewire.tf/embed/tv/${id}/${season}/${ep}` },
+        { name: 'MovieWeb', urlTemplate: (type, id, season, ep) => type === 'movie' ? `https://movieweb.cc/embed/${id}` : `https://movieweb.cc/embed/tv/${id}/${season}/${ep}` },
+        { name: 'HDMovieBox', urlTemplate: (type, id, season, ep) => type === 'movie' ? `https://hdmoviebox.net/embed/${id}` : `https://hdmoviebox.net/embed/tv/${id}/${season}/${ep}` }
     ];
     
     let fallbackTimeout = null;
-    function playWithFallback(type, id, season, episode) {
+    let currentSourceIndex = 0;
+    
+    function playWithSmartFallback(type, id, season, episode) {
         const player = document.getElementById('movie-player');
         if (!player) return;
-        let index = 0;
         if (fallbackTimeout) clearTimeout(fallbackTimeout);
-        function tryNext() {
-            if (index >= STREAMING_SOURCES.length) {
+        currentSourceIndex = 0;
+        
+        function trySource() {
+            if (currentSourceIndex >= PREMIUM_STREAMING_SOURCES.length) {
                 player.src = "about:blank";
-                alert("⚠️ All streaming sources attempted. Try another title or refresh.");
+                alert("⚠️ All premium sources attempted. Try another title or refresh the page.");
                 return;
             }
-            let url = STREAMING_SOURCES[index].urlTemplate(type, id, season, episode);
+            const source = PREMIUM_STREAMING_SOURCES[currentSourceIndex];
+            let url = source.urlTemplate(type, id, season, episode);
             player.src = url;
-            let currentIndex = index;
-            index++;
+            
+            // Mark active button
+            document.querySelectorAll('.source-btn').forEach((btn, idx) => {
+                if (idx === currentSourceIndex) btn.classList.add('active');
+                else btn.classList.remove('active');
+            });
+            
+            const attemptedIndex = currentSourceIndex;
+            currentSourceIndex++;
+            
             if (fallbackTimeout) clearTimeout(fallbackTimeout);
             fallbackTimeout = setTimeout(() => {
-                if (player.src.includes(url.split('?')[0]) && player.src !== "about:blank") {
-                    tryNext();
+                // Check if iframe still loading or blocked
+                let currentSrc = player.src;
+                if (currentSrc && currentSrc !== "about:blank" && currentSrc.includes(PREMIUM_STREAMING_SOURCES[attemptedIndex]?.name?.toLowerCase() || '')) {
+                    trySource();
                 }
             }, 10000);
         }
-        tryNext();
+        trySource();
     }
     
     function openPlayer(id, type, isAnime) {
@@ -499,7 +518,7 @@
                 });
         } else {
             document.getElementById('tv-controls').style.display = 'none';
-            playWithFallback(type, id, null, null);
+            playWithSmartFallback(type, id, null, null);
         }
         buildSourceButtons(type, id, currentSeason, currentEpisode);
     }
@@ -519,7 +538,7 @@
                     });
                 }
                 currentEpisode = data.episodes?.[0]?.episode_number || 1;
-                playWithFallback(currentModalType, currentModalId, currentSeason, currentEpisode);
+                playWithSmartFallback(currentModalType, currentModalId, currentSeason, currentEpisode);
                 buildSourceButtons(currentModalType, currentModalId, currentSeason, currentEpisode);
             });
     }
@@ -527,7 +546,7 @@
     function buildSourceButtons(type, id, season, episode) {
         const container = document.getElementById('source-buttons');
         container.innerHTML = '';
-        STREAMING_SOURCES.forEach((src, idx) => {
+        PREMIUM_STREAMING_SOURCES.forEach((src, idx) => {
             const btn = document.createElement('button');
             btn.className = 'source-btn';
             btn.innerText = src.name;
@@ -537,12 +556,15 @@
                 document.getElementById('movie-player').src = newUrl;
                 document.querySelectorAll('.source-btn').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
+                currentSourceIndex = idx + 1;
                 fallbackTimeout = setTimeout(() => {
                     let currentSrc = document.getElementById('movie-player').src;
-                    if (currentSrc && currentSrc.includes(newUrl.split('?')[0])) {
-                        let nextIdx = (idx + 1) % STREAMING_SOURCES.length;
-                        let fallbackUrl = STREAMING_SOURCES[nextIdx].urlTemplate(type, id, season, episode);
-                        document.getElementById('movie-player').src = fallbackUrl;
+                    if (currentSrc && currentSrc !== "about:blank" && currentSrc.includes(newUrl.split('?')[0]?.substring(0, 40))) {
+                        if (currentSourceIndex < PREMIUM_STREAMING_SOURCES.length) {
+                            let nextUrl = PREMIUM_STREAMING_SOURCES[currentSourceIndex].urlTemplate(type, id, season, episode);
+                            document.getElementById('movie-player').src = nextUrl;
+                            currentSourceIndex++;
+                        }
                     }
                 }, 12000);
             };
@@ -605,14 +627,28 @@
     document.querySelectorAll('.type-btn').forEach(btn=>btn.onclick=()=>{ document.querySelectorAll('.type-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); mediaType=btn.dataset.type; activeGenreId=null; document.getElementById('selectedGenreName').innerText='All'; buildGenreDropdown(); currentPage=1; loadGridContent(); });
     document.getElementById('apply-filter').onclick=()=>{ currentPage=1; loadGridContent(); };
     document.getElementById('back-btn').onclick=()=>{ document.getElementById('movie-player').src=''; document.getElementById('movie-modal').style.display='none'; document.body.style.overflow=''; if(fallbackTimeout) clearTimeout(fallbackTimeout); };
-    document.getElementById('refresh-player').onclick=()=>{ let p=document.getElementById('movie-player'); let src=p.src; p.src=''; setTimeout(()=>{ if(currentModalType==='tv') playWithFallback(currentModalType,currentModalId,currentSeason,currentEpisode); else playWithFallback(currentModalType,currentModalId,null,null); },100); };
+    document.getElementById('refresh-player').onclick=()=>{ let p=document.getElementById('movie-player'); let src=p.src; p.src=''; setTimeout(()=>{ if(currentModalType==='tv') playWithSmartFallback(currentModalType,currentModalId,currentSeason,currentEpisode); else playWithSmartFallback(currentModalType,currentModalId,null,null); },100); };
     document.getElementById('season-select')?.addEventListener('change',(e)=>{ currentSeason=parseInt(e.target.value); loadEpisodes(currentModalId,currentSeason); });
-    document.getElementById('episode-select')?.addEventListener('change',(e)=>{ currentEpisode=parseInt(e.target.value); playWithFallback(currentModalType,currentModalId,currentSeason,currentEpisode); buildSourceButtons(currentModalType,currentModalId,currentSeason,currentEpisode); });
-    document.getElementById('lang-sub')?.addEventListener('click',()=>{ document.getElementById('lang-sub').classList.add('active'); document.getElementById('lang-dub').classList.remove('active'); playWithFallback(currentModalType,currentModalId,currentSeason,currentEpisode); });
-    document.getElementById('lang-dub')?.addEventListener('click',()=>{ document.getElementById('lang-dub').classList.add('active'); document.getElementById('lang-sub').classList.remove('active'); playWithFallback(currentModalType,currentModalId,currentSeason,currentEpisode); });
+    document.getElementById('episode-select')?.addEventListener('change',(e)=>{ currentEpisode=parseInt(e.target.value); playWithSmartFallback(currentModalType,currentModalId,currentSeason,currentEpisode); buildSourceButtons(currentModalType,currentModalId,currentSeason,currentEpisode); });
+    document.getElementById('lang-sub')?.addEventListener('click',()=>{ document.getElementById('lang-sub').classList.add('active'); document.getElementById('lang-dub').classList.remove('active'); playWithSmartFallback(currentModalType,currentModalId,currentSeason,currentEpisode); });
+    document.getElementById('lang-dub')?.addEventListener('click',()=>{ document.getElementById('lang-dub').classList.add('active'); document.getElementById('lang-sub').classList.remove('active'); playWithSmartFallback(currentModalType,currentModalId,currentSeason,currentEpisode); });
     document.getElementById('countryDropdownBtn').onclick=(e)=>{ e.stopPropagation(); document.getElementById('countryDropdownMenu').classList.toggle('show'); };
     document.getElementById('genreDropdownBtn').onclick=(e)=>{ e.stopPropagation(); document.getElementById('genreDropdownMenu').classList.toggle('show'); };
     document.addEventListener('click',()=>{ document.getElementById('countryDropdownMenu')?.classList.remove('show'); document.getElementById('genreDropdownMenu')?.classList.remove('show'); });
+    
+    // Search functionality
+    document.getElementById('search-input').addEventListener('input', (e) => {
+        searchQuery = e.target.value.trim();
+        if(searchQuery.length > 2) {
+            // Quick search: load from search API (simplified)
+            const searchUrl = `${API_BASE}/search/${mediaType === 'movie' ? 'movie' : 'tv'}?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(searchQuery)}&page=1`;
+            fetch(searchUrl, {headers:{'Authorization':`Bearer ${TMDB_READ_TOKEN}`}})
+                .then(r=>r.json())
+                .then(data=>{ renderGrid(data.results||[], mediaType); totalPages = Math.min(data.total_pages||1, 20); updatePagination(); })
+                .catch(()=>{});
+        } else if(searchQuery === '') loadGridContent();
+    });
+    
     (async()=>{ await loadGenres(); buildCountryDropdown(); buildGenreDropdown(); loadCarousel(); loadGridContent(); })();
 })();
 </script>
