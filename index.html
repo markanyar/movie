@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>MARKANYAR - Premium Stream Hub | Global + Bollywood + Nollywood</title>
+    <title>MARKANYAR · Global Cinema Hub | Movies + Anime + World TV</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=yes">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
@@ -158,9 +158,10 @@
         }
         .apply-filter-btn:hover { background: #b00610; }
 
+        /* NEW: FULL COUNTRIES DROPDOWN */
         .country-dropdown-container {
             position: relative;
-            min-width: 200px;
+            min-width: 180px;
         }
         .country-dropdown-button {
             width: 100%;
@@ -195,12 +196,13 @@
             background: #1f1f1f;
             border: 1px solid #e50914;
             border-radius: 20px;
-            max-height: 380px;
+            max-height: 320px;
             overflow-y: auto;
             display: none;
             z-index: 1002;
             padding: 0.5rem 0;
             box-shadow: 0 15px 30px rgba(0,0,0,0.8);
+            backdrop-filter: blur(12px);
         }
         .country-dropdown-menu.show { display: block; }
         .country-option {
@@ -214,8 +216,13 @@
             gap: 10px;
             border-bottom: 1px solid #2c2c2c;
         }
-        .country-option.selected { background: #e50914; color: white; }
-        .country-option:hover { background: #e50914aa; }
+        .country-option:last-child { border-bottom: none; }
+        .country-option:hover,
+        .country-option.selected {
+            background: #e50914;
+            color: white;
+        }
+        .country-option i { width: 22px; font-size: 1rem; }
         .genre-dropdown-container {
             position: relative;
             min-width: 140px;
@@ -228,6 +235,9 @@
             padding: 0.5rem 1.8rem 0.5rem 1rem;
             border-radius: 40px;
             font-size: 0.85rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
             cursor: pointer;
         }
         .genre-dropdown-button::after {
@@ -247,6 +257,7 @@
             display: none;
             z-index: 1001;
             padding: 0.3rem 0;
+            box-shadow: 0 10px 20px black;
         }
         .genre-dropdown-menu.show { display: block; }
         .genre-option {
@@ -254,15 +265,22 @@
             color: #ddd;
             font-size: 0.9rem;
             cursor: pointer;
+            transition: 0.1s;
+            border-bottom: 1px solid #2a2a2a;
         }
-        .genre-option:hover, .genre-option.selected { background: #e50914; color: white; }
+        .genre-option:last-child { border-bottom: none; }
+        .genre-option:hover,
+        .genre-option.selected { background: #e50914; color: white; }
 
         .carousel-section { padding: 0.2rem 0 1rem; background: #000; }
         .section-header {
             display: flex; justify-content: space-between; align-items: baseline;
             margin: 0.8rem 1rem 0.5rem;
         }
-        .section-header h2 { font-size: 1.5rem; border-left: 5px solid #e50914; padding-left: 0.7rem; }
+        .section-header h2 {
+            font-size: 1.5rem; border-left: 5px solid #e50914; padding-left: 0.7rem;
+            text-shadow: 0 0 8px #e50914;
+        }
         .carousel-wrapper {
             position: relative;
             overflow: hidden;
@@ -277,6 +295,7 @@
             scroll-snap-type: x mandatory;
             padding: 0.8rem 0.5rem 1.2rem;
             scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
             cursor: grab;
         }
         .card-scroll:active { cursor: grabbing; }
@@ -292,11 +311,17 @@
             border: 2px solid #333;
             cursor: pointer;
             transition: 0.3s;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.8);
         }
-        .slide-card:hover { transform: scale(1.02); border-color: #e50914; box-shadow: 0 0 30px #e50914; }
-        .slide-poster { width: 100%; height: 240px; object-fit: cover; }
+        .slide-card:hover { transform: scale(1.02) translateY(-6px); border-color: #e50914; box-shadow: 0 0 30px #e50914; }
+        .slide-poster { width: 100%; height: 240px; object-fit: cover; border-bottom: 2px solid #e5091440; }
         .slide-info { padding: 0.9rem 1rem; background: linear-gradient(to top, #111, #1a1a1a); }
-        .slide-info h4 { font-size: 1.3rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .slide-info h4 { font-size: 1.3rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .slide-meta { display: flex; justify-content: space-between; font-size: 1rem; color: #ccc; margin-top: 0.3rem; }
+        .carousel-indicators { display: flex; justify-content: center; gap: 0.6rem; margin-top: 0.5rem; }
+        .indicator-dot { width: 10px; height: 10px; border-radius: 50%; background: #444; cursor: pointer; }
+        .indicator-dot.active { background: #e50914; width: 28px; border-radius: 20px; }
+
         #movies-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
@@ -314,11 +339,18 @@
             transition: 0.3s;
             position: relative;
         }
-        .movie-card:hover { transform: translateY(-6px); border-color: #e50914; }
+        .movie-card:hover { transform: translateY(-6px); border-color: #e50914; box-shadow: 0 10px 20px rgba(229,9,20,0.4); }
         .movie-poster { width: 100%; height: 200px; object-fit: cover; }
-        .movie-info { padding: 0.6rem 0.5rem 0.8rem; }
+        .movie-info { padding: 0.6rem 0.5rem 0.8rem; background: linear-gradient(to top, #111, #1a1a1a); }
         .movie-info h3 { font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .movie-meta { display: flex; justify-content: space-between; font-size: 0.75rem; }
         .green { color: #21d07a; }
+        .tv-badge, .anime-badge {
+            position: absolute; top: 4px; background: #e50914; color: white; padding: 0.2rem 0.5rem;
+            border-radius: 20px; font-size: 0.6rem; font-weight: bold; z-index: 2;
+        }
+        .tv-badge { left: 4px; }
+        .anime-badge { right: 4px; background: #ff6b00; }
         .play-overlay {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%) scale(0.8);
             background: #e50914; width: 42px; height: 42px; border-radius: 50%;
@@ -336,125 +368,25 @@
             cursor: pointer;
         }
         .page-btn:hover:not(:disabled) { background: #e50914; }
-        
-        /* MODAL without IFRAME - custom video player placeholder with sources */
-        .movie-modal {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: #000;
-            z-index: 2000;
-            flex-direction: column;
-        }
-        .modal-content {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-        }
-        .top-controls {
-            padding: 0.8rem;
-            background: #000;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #222;
-        }
-        #back-btn, #refresh-player {
-            background: #1a1a1a;
-            border: 2px solid #e50914;
-            color: #e50914;
-            width: 42px;
-            height: 42px;
-            border-radius: 50%;
-            cursor: pointer;
-        }
-        .player-main-area {
-            flex: 1;
-            position: relative;
-            background: #0a0a0a;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
-        .custom-video-placeholder {
-            background: #111;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            padding: 2rem;
-        }
-        .custom-video-placeholder i {
-            font-size: 5rem;
-            color: #e50914;
-            margin-bottom: 1.5rem;
-        }
-        .video-source-list {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 12px;
-            margin-top: 20px;
-            max-width: 90%;
-        }
-        .video-source-btn {
-            background: #1f1f1f;
-            border: 1px solid #e50914;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 40px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.2s;
-            font-size: 0.9rem;
-        }
-        .video-source-btn:hover, .video-source-btn.active-source {
-            background: #e50914;
-            transform: scale(1.02);
-            box-shadow: 0 0 12px #e50914;
-        }
-        .stream-message {
-            font-size: 1.2rem;
-            margin: 1rem 0;
-            color: #ffaa44;
-        }
-        .info-bar {
-            background: #0c0c0c;
-            border-top: 1px solid #222;
-            padding: 1rem;
-            max-height: 40vh;
-            overflow-y: auto;
-        }
-        .lang-toggle { display: flex; gap: 0.5rem; align-items: center; margin-top: 10px; }
-        .lang-btn {
-            background: #1a1a1a;
-            border: 1px solid #444;
-            padding: 6px 16px;
-            border-radius: 40px;
-            cursor: pointer;
-        }
+        .page-btn:disabled { opacity: 0.3; }
+        #page-indicator { background: #222; padding: 0.4rem 1.2rem; border-radius: 40px; }
+        .movie-modal { display: none; position: fixed; inset: 0; background: black; z-index: 2000; flex-direction: column; }
+        .modal-content { width: 100%; height: 100%; display: flex; flex-direction: column; }
+        .top-controls { padding: 0.8rem; background: #000; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; }
+        #back-btn { background: #1a1a1a; border: 2px solid #e50914; color: #e50914; width: 42px; height: 42px; border-radius: 50%; cursor: pointer; }
+        .player-main-area { flex: 1; position: relative; background: #000; }
+        .player-container { width: 100%; height: 100%; }
+        #movie-player { width: 100%; height: 100%; border: none; }
+        .info-bar { background: #0c0c0c; border-top: 1px solid #222; padding: 1rem; max-height: 40vh; overflow-y: auto; }
+        .source-buttons { display: flex; gap: 8px; flex-wrap: wrap; margin: 8px 0; }
+        .source-btn { background: #1a1a1a; border: 1px solid #e50914; color: white; padding: 6px 14px; border-radius: 40px; cursor: pointer; }
+        .source-btn.active { background: #e50914; }
+        .lang-toggle { display: flex; gap: 0.5rem; align-items: center; }
+        .lang-btn { background: #1a1a1a; border: 1px solid #444; color: #ccc; padding: 6px 16px; border-radius: 40px; cursor: pointer; }
         .lang-btn.active { background: #e50914; color: white; }
         .site-footer {
-            flex-shrink: 0;
-            background: #0a0a0a;
-            border-top: 1px solid #222;
-            padding: 1rem;
-            text-align: center;
-            color: #aaa;
-        }
-        .warning-note {
-            font-size: 0.7rem;
-            color: #ffaa44;
-            margin-top: 8px;
-            background: rgba(0,0,0,0.6);
-            padding: 6px 12px;
-            border-radius: 20px;
-            display: inline-block;
+            flex-shrink: 0; background: #0a0a0a; border-top: 1px solid #222;
+            padding: 1rem; text-align: center; color: #aaa;
         }
         @media (max-width: 600px) {
             header { flex-wrap: wrap; }
@@ -462,79 +394,74 @@
             .filters { top: 112px; }
             .slide-card { flex: 0 0 92%; }
         }
-        .tv-controls-group {
-            display: flex;
-            gap: 12px;
-            margin-top: 12px;
-            flex-wrap: wrap;
-        }
-        select {
-            background: #1a1a1a;
-            color: white;
-            border: 1px solid #e50914;
-            padding: 6px 12px;
-            border-radius: 20px;
-        }
     </style>
 </head>
 <body>
+
 <div class="main-content">
     <header>
         <h1><i class="fas fa-film"></i> MARKANYAR</h1>
         <div id="search-container">
             <i class="fas fa-search search-icon"></i>
-            <input type="text" id="search-input" placeholder="Search movies, TV shows...">
+            <input type="text" id="search-input" placeholder="Search...">
         </div>
         <button class="user-btn" id="fullscreen-toggle"><i class="fas fa-expand"></i></button>
     </header>
-    <div class="filters">
+
+    <div class="filters" id="filter-panel">
         <div class="filter-row">
             <div class="media-type-selector">
                 <button class="type-btn active" data-type="movie">🎬 Movies</button>
-                <button class="type-btn" data-type="tv">📺 TV Series</button>
+                <button class="type-btn" data-type="tv">📺 TV</button>
                 <button class="type-btn" data-type="anime">✨ Anime</button>
             </div>
-            <div class="country-dropdown-container"><div class="country-dropdown-button" id="countryDropdownBtn"><i class="fas fa-globe"></i> <span id="selectedCountryName">All Countries</span></div><div class="country-dropdown-menu" id="countryDropdownMenu"></div></div>
-            <div class="genre-dropdown-container"><div class="genre-dropdown-button" id="genreDropdownBtn"><i class="fas fa-tags"></i> <span id="selectedGenreName">All</span></div><div class="genre-dropdown-menu" id="genreDropdownMenu"></div></div>
+            <!-- NEW: FULL COUNTRIES DROPDOWN (replaces old country bar) -->
+            <div class="country-dropdown-container" id="countryDropdownContainer">
+                <div class="country-dropdown-button" id="countryDropdownBtn">
+                    <i class="fas fa-globe-americas"></i> <span id="selectedCountryName">All Countries</span>
+                </div>
+                <div class="country-dropdown-menu" id="countryDropdownMenu"></div>
+            </div>
+            <div class="genre-dropdown-container" id="genreDropdownContainer">
+                <div class="genre-dropdown-button" id="genreDropdownBtn">
+                    <i class="fas fa-tags"></i> <span id="selectedGenreName">All</span>
+                </div>
+                <div class="genre-dropdown-menu" id="genreDropdownMenu"></div>
+            </div>
         </div>
         <div class="extra-filters">
-            <input type="number" id="filter-year" class="filter-input" placeholder="Year">
-            <input type="number" id="filter-rating" class="filter-input" placeholder="Min rating" step="0.5">
-            <select id="filter-sort" class="filter-select"><option value="popularity.desc">🔥 Popularity</option><option value="vote_average.desc">⭐ Top rated</option><option value="release_date.desc">📅 Newest</option></select>
+            <input type="number" id="filter-year" class="filter-input" placeholder="Year" min="1900" max="2030">
+            <input type="number" id="filter-rating" class="filter-input" placeholder="Min rating" min="0" max="10" step="0.5">
+            <select id="filter-sort" class="filter-select">
+                <option value="popularity.desc">🔥 Popularity</option>
+                <option value="vote_average.desc">⭐ Top rated</option>
+                <option value="release_date.desc">📅 Newest</option>
+            </select>
             <button class="apply-filter-btn" id="apply-filter"><i class="fas fa-sliders-h"></i> Apply</button>
         </div>
     </div>
-    <div class="carousel-section"><div class="section-header"><h2><i class="fas fa-fire"></i> TRENDING NOW</h2><span>← Swipe →</span></div><div class="carousel-wrapper"><div class="card-scroll" id="latest-carousel"></div></div></div>
+
+    <div class="carousel-section">
+        <div class="section-header"><h2><i class="fas fa-fire" style="color:#e50914;"></i> NOW PLAYING</h2><span style="color:#e50914;">← Swipe →</span></div>
+        <div class="carousel-wrapper"><div class="card-scroll" id="latest-carousel"></div></div>
+        <div class="carousel-indicators" id="carousel-indicators"></div>
+    </div>
+
     <div id="movies-grid"></div>
-    <div class="pagination-bar"><button class="page-btn" id="prev-page" disabled><i class="fas fa-chevron-left"></i></button><span id="page-indicator">Page 1</span><button class="page-btn" id="next-page"><i class="fas fa-chevron-right"></i></button></div>
+    <div class="pagination-bar" id="pagination-controls">
+        <button class="page-btn" id="prev-page" disabled><i class="fas fa-chevron-left"></i></button>
+        <span id="page-indicator">Page 1</span>
+        <button class="page-btn" id="next-page"><i class="fas fa-chevron-right"></i></button>
+    </div>
 </div>
-<footer class="site-footer">⚡ Premium streaming hub | NO IFRAMES — curated video source aggregator | Bollywood, Nollywood, Global cinema</footer>
+
+<footer class="site-footer">developed with <i class="fas fa-heart" style="color:#e50914;"></i> by MARK ANYAR</footer>
 
 <div id="movie-modal" class="movie-modal">
     <div class="modal-content">
-        <div class="top-controls"><button id="back-btn"><i class="fas fa-arrow-left"></i></button><div id="movie-title-header" style="font-weight:600; font-size:1rem; max-width:60%; overflow:hidden; text-overflow:ellipsis;"></div><button id="refresh-player"><i class="fas fa-redo"></i></button></div>
-        <div class="player-main-area" id="playerMainArea">
-            <div class="custom-video-placeholder" id="videoPlaceholder">
-                <i class="fas fa-video"></i>
-                <div class="stream-message"><i class="fas fa-globe"></i> Premium Streaming Sources (No iframe, direct video links)</div>
-                <div id="external-source-buttons" class="video-source-list"></div>
-                <div class="warning-note" style="margin-top:20px;"><i class="fas fa-shield-alt"></i> Elite multi-source links: VidLink, Vidsrc, 2Embed, MultiEmbed, SmashyStream, AutoEmbed, DBGo, Filmxy — click any source to watch in new tab or external player. (No iframe restrictions)</div>
-            </div>
-        </div>
-        <div class="info-bar">
-            <div style="display:flex; gap:1rem; flex-wrap:wrap;">
-                <img id="modal-poster" style="width:80px; height:120px; object-fit:cover; border-radius:12px;">
-                <div style="flex:1;">
-                    <h2 id="modal-title"></h2>
-                    <p id="modal-overview" style="color:#ccc; margin-top:6px; font-size:0.85rem;"></p>
-                    <div id="lang-toggle-container" class="lang-toggle" style="display:none;"><span>Audio:</span><button id="lang-sub" class="lang-btn active">🇯🇵 SUB</button><button id="lang-dub" class="lang-btn">🇺🇸 DUB</button></div>
-                    <div id="tv-controls" style="display:none; margin-top:1rem;" class="tv-controls-group">
-                        <select id="season-select"></select>
-                        <select id="episode-select"></select>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <div class="top-controls"><button id="back-btn"><i class="fas fa-arrow-left"></i></button><div class="movie-title-header" id="movie-title-header"></div><button class="control-btn" id="refresh-player"><i class="fas fa-redo"></i></button></div>
+        <div class="player-main-area"><div class="player-container"><iframe id="movie-player" allowfullscreen></iframe></div></div>
+        <div class="info-bar" id="info-bar"><div style="display:flex; gap:1rem;"><img id="modal-poster" style="width:80px; height:120px; object-fit:cover; border-radius:12px;"><div><h2 id="modal-title"></h2><p id="modal-overview" style="color:#ccc;"></p><div id="lang-toggle-container" class="lang-toggle" style="display:none;"><span class="lang-label">Audio:</span><button id="lang-sub" class="lang-btn active">SUB</button><button id="lang-dub" class="lang-btn">DUB</button></div><div id="source-selector"><div class="source-buttons" id="source-buttons"></div></div><div id="tv-controls" style="display:none; margin-top:1rem;"><select id="season-select"></select> <select id="episode-select"></select></div></div></div></div>
     </div>
 </div>
 
@@ -547,176 +474,278 @@
     
     let movieGenres = [], tvGenres = [];
     let mediaType = 'movie';
-    let activeGenreId = null, activeCountryCode = 'all';
-    let currentPage = 1, totalPages = 10;
+    let activeGenreId = null;
+    let activeCountryCode = 'all';   // full country codes
+    let currentPage = 1, totalPages = 10, isLoading = false;
     let filterYear = '', filterRating = '', filterSort = 'popularity.desc';
-    let currentModalId, currentModalType, currentIsAnime, currentSeason = 1, currentEpisode = 1;
-    let searchQuery = '';
+    let currentModalId, currentModalType, currentIsAnime, currentSeason = 1, currentEpisode = 1, currentAudioLang = 'sub', currentSourceIndex = 0;
     
-    // DIRECT STREAMING SOURCES (no iframe, just links to open externally / redirect)
-    const PREMIUM_STREAM_SOURCES = [
-        { name: 'VidLink', urlTemplate: (type, id, season, ep) => type === 'movie' ? `https://vidlink.pro/movie/${id}` : `https://vidlink.pro/tv/${id}/${season}/${ep}` },
-        { name: 'VidSrc', urlTemplate: (type, id, season, ep) => type === 'movie' ? `https://vidsrc.xyz/embed/movie?tmdb=${id}` : `https://vidsrc.xyz/embed/tv?tmdb=${id}&season=${season}&episode=${ep}` },
-        { name: '2Embed', urlTemplate: (type, id, season, ep) => type === 'movie' ? `https://www.2embed.cc/embed/movie/${id}` : `https://www.2embed.cc/embed/tv/${id}&s=${season}&e=${ep}` },
-        { name: 'MultiEmbed', urlTemplate: (type, id, season, ep) => type === 'movie' ? `https://multiembed.mov/?video_id=${id}&tmdb=1` : `https://multiembed.mov/?video_id=${id}&tmdb=1&s=${season}&e=${ep}` },
-        { name: 'SmashyStream', urlTemplate: (type, id, season, ep) => type === 'movie' ? `https://embed.smashystream.com/playere.php?tmdb=${id}` : `https://embed.smashystream.com/playere.php?tmdb=${id}&season=${season}&episode=${ep}` },
-        { name: 'AutoEmbed', urlTemplate: (type, id, season, ep) => type === 'movie' ? `https://autoembed.cc/embed/movie/${id}` : `https://autoembed.cc/embed/tv/${id}/${season}/${ep}` },
-        { name: 'DBGo', urlTemplate: (type, id, season, ep) => type === 'movie' ? `https://dbgo.fun/movie/${id}` : `https://dbgo.fun/tv/${id}/${season}/${ep}` },
-        { name: 'Filmxy', urlTemplate: (type, id, season, ep) => type === 'movie' ? `https://www.filmxy.vip/embed/${id}` : `https://www.filmxy.vip/embed/${id}/${season}-${ep}` }
+    // FULL COUNTRIES LIST (ISO 3166-1 alpha-2 + special "world")
+    const countryList = [
+        { code: 'all', name: '🌍 All Countries', flag: 'globe' },
+        { code: 'US', name: '🇺🇸 United States', flag: 'flag-usa' },
+        { code: 'GB', name: '🇬🇧 United Kingdom', flag: 'flag-uk' },
+        { code: 'IN', name: '🇮🇳 India (Bollywood)', flag: 'flag-india' },
+        { code: 'NG', name: '🇳🇬 Nigeria (Nollywood)', flag: 'flag-nigeria' },
+        { code: 'GH', name: '🇬🇭 Ghana (Ghanawood)', flag: 'flag-ghana' },
+        { code: 'FR', name: '🇫🇷 France', flag: 'flag-france' },
+        { code: 'DE', name: '🇩🇪 Germany', flag: 'flag-germany' },
+        { code: 'IT', name: '🇮🇹 Italy', flag: 'flag-italy' },
+        { code: 'ES', name: '🇪🇸 Spain', flag: 'flag-spain' },
+        { code: 'KR', name: '🇰🇷 South Korea', flag: 'flag-korea' },
+        { code: 'JP', name: '🇯🇵 Japan', flag: 'flag-japan' },
+        { code: 'CN', name: '🇨🇳 China', flag: 'flag-china' },
+        { code: 'MX', name: '🇲🇽 Mexico', flag: 'flag-mexico' },
+        { code: 'BR', name: '🇧🇷 Brazil', flag: 'flag-brazil' },
+        { code: 'AU', name: '🇦🇺 Australia', flag: 'flag-australia' },
+        { code: 'CA', name: '🇨🇦 Canada', flag: 'flag-canada' },
+        { code: 'SE', name: '🇸🇪 Sweden', flag: 'flag-sweden' },
+        { code: 'NO', name: '🇳🇴 Norway', flag: 'flag-norway' },
+        { code: 'DK', name: '🇩🇰 Denmark', flag: 'flag-denmark' },
+        { code: 'ZA', name: '🇿🇦 South Africa', flag: 'flag-sa' },
+        { code: 'world', name: '🌍 World Cinema (Global)', flag: 'globe' }
     ];
     
-    function buildSourceButtonsForModal(type, id, season, episode) {
-        const container = document.getElementById('external-source-buttons');
-        if (!container) return;
-        container.innerHTML = '';
-        PREMIUM_STREAM_SOURCES.forEach(src => {
-            const btn = document.createElement('button');
-            btn.className = 'video-source-btn';
-            btn.innerText = src.name;
-            btn.onclick = (e) => {
-                e.preventDefault();
-                const url = src.urlTemplate(type, id, season, episode);
-                window.open(url, '_blank', 'noopener,noreferrer');
-            };
-            container.appendChild(btn);
-        });
-    }
-    
-    function openPlayer(id, type, isAnime) {
-        const modal = document.getElementById('movie-modal');
-        modal.style.display = 'flex';
-        document.body.style.overflow = 'hidden';
-        currentModalId = id;
-        currentModalType = type;
-        currentIsAnime = isAnime;
-        
-        fetch(`${API_BASE}/${type === 'movie' ? 'movie' : 'tv'}/${id}`, { headers: { 'Authorization': `Bearer ${TMDB_READ_TOKEN}` } })
-            .then(r => r.json())
-            .then(d => {
-                document.getElementById('movie-title-header').innerText = d.title || d.name || '';
-                document.getElementById('modal-title').innerText = d.title || d.name || '';
-                document.getElementById('modal-overview').innerText = d.overview || 'No description available.';
-                document.getElementById('modal-poster').src = d.poster_path ? IMG_BASE + d.poster_path : '';
-            });
-        
-        const langDiv = document.getElementById('lang-toggle-container');
-        langDiv.style.display = isAnime ? 'flex' : 'none';
-        
-        if (type === 'tv' || isAnime) {
-            document.getElementById('tv-controls').style.display = 'flex';
-            fetch(`${API_BASE}/tv/${id}`, { headers: { 'Authorization': `Bearer ${TMDB_READ_TOKEN}` } })
-                .then(r => r.json())
-                .then(data => {
-                    const seasonSelect = document.getElementById('season-select');
-                    seasonSelect.innerHTML = '';
-                    if (data.seasons) {
-                        data.seasons.forEach(s => {
-                            if (s.season_number > 0) {
-                                let opt = document.createElement('option');
-                                opt.value = s.season_number;
-                                opt.innerText = `Season ${s.season_number} (${s.episode_count} eps)`;
-                                seasonSelect.appendChild(opt);
-                            }
-                        });
-                    }
-                    currentSeason = data.seasons?.find(s => s.season_number > 0)?.season_number || 1;
-                    loadEpisodesForModal(id, currentSeason);
-                });
-        } else {
-            document.getElementById('tv-controls').style.display = 'none';
-            buildSourceButtonsForModal(type, id, null, null);
-        }
-        buildSourceButtonsForModal(type, id, currentSeason, currentEpisode);
-    }
-    
-    function loadEpisodesForModal(tvId, season) {
-        fetch(`${API_BASE}/tv/${tvId}/season/${season}`, { headers: { 'Authorization': `Bearer ${TMDB_READ_TOKEN}` } })
-            .then(r => r.json())
-            .then(data => {
-                const epSelect = document.getElementById('episode-select');
-                epSelect.innerHTML = '';
-                if (data.episodes) {
-                    data.episodes.forEach(ep => {
-                        let opt = document.createElement('option');
-                        opt.value = ep.episode_number;
-                        opt.innerText = `Episode ${ep.episode_number}: ${ep.name}`;
-                        epSelect.appendChild(opt);
-                    });
-                }
-                currentEpisode = data.episodes?.[0]?.episode_number || 1;
-                buildSourceButtonsForModal(currentModalType, currentModalId, currentSeason, currentEpisode);
-            });
-    }
-    
-    // COUNTRY DROPDOWN with BOLLYWOOD+NOLLYWOOD
-    const ALL_COUNTRIES = [
-        { code: 'IN', name: '🇮🇳 BOLLYWOOD / India', priority:1 }, { code: 'NG', name: '🇳🇬 NOLLYWOOD / Nigeria', priority:2 },
-        { code: 'US', name: '🇺🇸 United States' }, { code: 'GB', name: '🇬🇧 United Kingdom' }, { code: 'JP', name: '🇯🇵 Japan' },
-        { code: 'KR', name: '🇰🇷 South Korea' }, { code: 'FR', name: '🇫🇷 France' }, { code: 'DE', name: '🇩🇪 Germany' }
-    ];
     function buildCountryDropdown() {
         const menu = document.getElementById('countryDropdownMenu');
         menu.innerHTML = '';
-        const allOption = { code: 'all', name: '🌍 All Countries' };
-        [allOption, ...ALL_COUNTRIES].forEach(c => {
-            const opt = document.createElement('div'); 
-            opt.className = 'country-option'; 
-            if(c.code === activeCountryCode) opt.classList.add('selected');
-            opt.innerHTML = `<i class="fas fa-flag-checkered"></i> ${c.name}`;
-            opt.onclick = () => { 
-                activeCountryCode = c.code; 
+        countryList.forEach(c => {
+            const option = document.createElement('div');
+            option.className = 'country-option';
+            if (c.code === activeCountryCode) option.classList.add('selected');
+            let icon = c.code === 'all' ? '<i class="fas fa-globe"></i>' : (c.code === 'world' ? '<i class="fas fa-earth-africa"></i>' : '<i class="fas fa-flag"></i>');
+            option.innerHTML = `${icon} ${c.name}`;
+            option.addEventListener('click', (e) => {
+                e.stopPropagation();
+                activeCountryCode = c.code;
                 document.getElementById('selectedCountryName').innerHTML = c.name;
-                currentPage = 1; 
-                loadGridContent(); 
-                menu.classList.remove('show'); 
-            };
-            menu.appendChild(opt);
+                document.querySelectorAll('.country-option').forEach(opt => opt.classList.remove('selected'));
+                option.classList.add('selected');
+                document.getElementById('countryDropdownMenu').classList.remove('show');
+                currentPage = 1;
+                activeGenreId = null;
+                document.getElementById('selectedGenreName').innerText = 'All';
+                loadGridContent();
+            });
+            menu.appendChild(option);
         });
     }
     
-    async function loadGenres() { try { const [mRes, tRes] = await Promise.all([fetch(`${API_BASE}/genre/movie/list?api_key=${TMDB_API_KEY}`, {headers:{'Authorization':`Bearer ${TMDB_READ_TOKEN}`}}), fetch(`${API_BASE}/genre/tv/list?api_key=${TMDB_API_KEY}`, {headers:{'Authorization':`Bearer ${TMDB_READ_TOKEN}`}})]); movieGenres = (await mRes.json()).genres || []; tvGenres = (await tRes.json()).genres || []; } catch(e){} }
-    function buildGenreDropdown() { let genres = mediaType === 'movie' ? movieGenres : (mediaType === 'tv' ? tvGenres : [...movieGenres, ...tvGenres].filter((v,i,a)=>a.findIndex(t=>t.id===v.id)===i)); const menu = document.getElementById('genreDropdownMenu'); menu.innerHTML = '<div class="genre-option" data-id="null">All Genres</div>' + genres.map(g => `<div class="genre-option" data-id="${g.id}">${g.name}</div>`).join(''); document.querySelectorAll('.genre-option').forEach(opt => opt.addEventListener('click', () => { activeGenreId = opt.dataset.id === 'null' ? null : parseInt(opt.dataset.id); document.getElementById('selectedGenreName').innerText = opt.innerText.trim() || 'All'; currentPage = 1; loadGridContent(); menu.classList.remove('show'); })); }
+    function getCountryAPIParam() {
+        if (activeCountryCode === 'all') return '';
+        if (activeCountryCode === 'world') return '&with_original_language=en|hi|ta|te|bn|ml|pa|fr|es|de|it|pt|zh|ko&sort_by=popularity.desc';
+        return `&with_origin_country=${activeCountryCode}`;
+    }
+    
+    async function loadGenres() {
+        const options = { headers: { 'Authorization': `Bearer ${TMDB_READ_TOKEN}` } };
+        try {
+            const [movieRes, tvRes] = await Promise.all([
+                fetch(`${API_BASE}/genre/movie/list?api_key=${TMDB_API_KEY}`, options),
+                fetch(`${API_BASE}/genre/tv/list?api_key=${TMDB_API_KEY}`, options)
+            ]);
+            movieGenres = (await movieRes.json()).genres || [];
+            tvGenres = (await tvRes.json()).genres || [];
+        } catch(e){}
+    }
+    
+    function buildGenreDropdown() {
+        let genres = mediaType === 'movie' ? movieGenres : (mediaType === 'tv' ? tvGenres : [...movieGenres, ...tvGenres].filter((v,i,a)=>a.findIndex(t=>t.id===v.id)===i));
+        let items = '<div class="genre-option" data-id="null"><i class="fas fa-fire"></i> All Genres</div>';
+        genres.forEach(g => items += `<div class="genre-option" data-id="${g.id}">${g.name}</div>`);
+        document.getElementById('genreDropdownMenu').innerHTML = items;
+        document.querySelectorAll('.genre-option').forEach(opt => {
+            opt.addEventListener('click', (e) => {
+                e.stopPropagation();
+                activeGenreId = opt.dataset.id === 'null' ? null : parseInt(opt.dataset.id);
+                document.getElementById('selectedGenreName').innerText = opt.innerText.trim() || 'All';
+                document.getElementById('genreDropdownMenu').classList.remove('show');
+                document.querySelectorAll('.genre-option').forEach(o => o.classList.remove('selected'));
+                opt.classList.add('selected');
+                currentPage = 1;
+                loadGridContent();
+            });
+        });
+    }
     
     async function loadGridContent() {
-        document.getElementById('movies-grid').innerHTML='<div style="text-align:center;padding:2rem;"><i class="fas fa-spinner fa-spin"></i> Loading...</div>';
-        filterYear=document.getElementById('filter-year').value; filterRating=document.getElementById('filter-rating').value; filterSort=document.getElementById('filter-sort').value;
-        let url=''; const base=`&page=${currentPage}&sort_by=${filterSort}`; const vote=filterRating?`&vote_average.gte=${filterRating}`:''; const year=filterYear?(mediaType==='movie'?`&primary_release_year=${filterYear}`:`&first_air_date_year=${filterYear}`):''; const countryParam=(activeCountryCode!=='all' && mediaType!=='anime')?`&with_origin_country=${activeCountryCode}`:'';
-        if(mediaType==='movie') url=`${API_BASE}/discover/movie?api_key=${TMDB_API_KEY}${activeGenreId?`&with_genres=${activeGenreId}`:''}${base}${vote}${year}${countryParam}`;
-        else if(mediaType==='tv') url=`${API_BASE}/discover/tv?api_key=${TMDB_API_KEY}${activeGenreId?`&with_genres=${activeGenreId}`:''}${base}${vote}${year}${countryParam}`;
-        else { await loadAnimeGrid(); updatePagination(); return; }
-        try{ const res=await fetch(url,{headers:{'Authorization':`Bearer ${TMDB_READ_TOKEN}`}}); const data=await res.json(); renderGrid(data.results||[],mediaType); totalPages=Math.min(data.total_pages||1,20); } catch(e){ document.getElementById('movies-grid').innerHTML='<p style="color:red;">Network error.</p>'; } finally{ updatePagination(); }
+        if(isLoading) return;
+        isLoading = true;
+        document.getElementById('movies-grid').innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:2rem;"><i class="fas fa-spinner fa-spin"></i> Loading...</div>';
+        filterYear = document.getElementById('filter-year').value;
+        filterRating = document.getElementById('filter-rating').value;
+        filterSort = document.getElementById('filter-sort').value;
+        let url = '';
+        const baseParams = `&page=${currentPage}&sort_by=${filterSort}`;
+        const voteFilter = filterRating ? `&vote_average.gte=${filterRating}` : '';
+        const yearFilter = filterYear ? (mediaType === 'movie' ? `&primary_release_year=${filterYear}` : `&first_air_date_year=${filterYear}`) : '';
+        const countryParam = (mediaType !== 'anime' && activeCountryCode !== 'all' && activeCountryCode !== 'world') ? `&with_origin_country=${activeCountryCode}` : (activeCountryCode === 'world' && mediaType !== 'anime' ? '&with_original_language=en|hi|ta|te|bn|ml|pa|fr|es|de|it|pt|zh|ko' : '');
+        const extraWorld = (activeCountryCode === 'world' && mediaType !== 'anime') ? '&sort_by=popularity.desc' : '';
+        if(mediaType === 'movie') {
+            let genrePart = activeGenreId ? `&with_genres=${activeGenreId}` : '';
+            url = `${API_BASE}/discover/movie?api_key=${TMDB_API_KEY}${genrePart}${baseParams}${voteFilter}${yearFilter}${countryParam}${extraWorld}`;
+        } else if(mediaType === 'tv') {
+            let genrePart = activeGenreId ? `&with_genres=${activeGenreId}` : '';
+            url = `${API_BASE}/discover/tv?api_key=${TMDB_API_KEY}${genrePart}${baseParams}${voteFilter}${yearFilter}${countryParam}${extraWorld}`;
+        } else {
+            await loadAnimeGrid();
+            isLoading = false; updatePagination(); return;
+        }
+        try {
+            const res = await fetch(url, { headers: { 'Authorization': `Bearer ${TMDB_READ_TOKEN}` } });
+            const data = await res.json();
+            renderGrid(data.results || [], mediaType);
+            totalPages = Math.min(data.total_pages || 1, 20);
+        } catch(e) { document.getElementById('movies-grid').innerHTML = '<p style="color:red;text-align:center;">Error</p>'; }
+        finally { isLoading = false; updatePagination(); }
     }
-    async function loadAnimeGrid(){ const mUrl=`${API_BASE}/discover/movie?api_key=${TMDB_API_KEY}&with_genres=16&with_original_language=ja&page=${currentPage}&sort_by=${filterSort}`; const tUrl=`${API_BASE}/discover/tv?api_key=${TMDB_API_KEY}&with_genres=16&with_original_language=ja&page=${currentPage}&sort_by=${filterSort}`; const [mRes,tRes]=await Promise.all([fetch(mUrl,{headers:{'Authorization':`Bearer ${TMDB_READ_TOKEN}`}}),fetch(tUrl,{headers:{'Authorization':`Bearer ${TMDB_READ_TOKEN}`}})]); const mData=await mRes.json(), tData=await tRes.json(); let combined=[...(mData.results||[]).map(m=>({...m,media_type:'movie',isAnime:true})),...(tData.results||[]).map(t=>({...t,media_type:'tv',isAnime:true}))]; combined.sort((a,b)=>(b.popularity||0)-(a.popularity||0)); renderGrid(combined,'anime'); totalPages=10; }
-    function renderGrid(items, type){ const grid=document.getElementById('movies-grid'); grid.innerHTML=''; if(!items.length){ grid.innerHTML='<div style="text-align:center;padding:3rem;">🎬 No results</div>'; return; } items.forEach(item=>grid.appendChild(createCard(item,type))); }
-    function createCard(item,forcedType){ const card=document.createElement('div'); card.className='movie-card'; let type=item.media_type||forcedType; const isAnime=item.isAnime||forcedType==='anime'; const title=(type==='movie')?(item.title||item.name):(item.name||item.title); const poster=item.poster_path?IMG_BASE+item.poster_path:'https://via.placeholder.com/300x450?text=No+Poster'; card.innerHTML=`<img class="movie-poster" src="${poster}" loading="lazy"><div class="movie-info"><h3>${title}</h3><div><span><i class="fas fa-star"></i> ${(item.vote_average||0).toFixed(1)}</span></div></div><div class="play-overlay"><i class="fas fa-play"></i></div>`; card.addEventListener('click',()=>openPlayer(item.id,type,isAnime)); return card; }
-    async function loadCarousel(){ const options={headers:{'Authorization':`Bearer ${TMDB_READ_TOKEN}`}}; const[mNow,tNow]=await Promise.all([fetch(`${API_BASE}/movie/now_playing?api_key=${TMDB_API_KEY}&page=1`,options),fetch(`${API_BASE}/tv/on_the_air?api_key=${TMDB_API_KEY}&page=1`,options)]); let slides=[...(await mNow.json()).results.slice(0,6).map(m=>({...m,media_type:'movie'})),...(await tNow.json()).results.slice(0,6).map(t=>({...t,media_type:'tv'}))]; slides.sort((a,b)=>(b.popularity||0)-(a.popularity||0)); const carousel=document.getElementById('latest-carousel'); carousel.innerHTML=''; slides.slice(0,10).forEach(item=>{ const card=document.createElement('div');card.className='slide-card';const poster=item.poster_path?IMG_BASE+item.poster_path:'https://via.placeholder.com/400x600';const title=item.title||item.name;card.innerHTML=`<img class="slide-poster" src="${poster}"><div class="slide-info"><h4>${title}</h4><div><span>⭐ ${item.vote_average?.toFixed(1)||'?'}</span></div></div>`;card.addEventListener('click',()=>openPlayer(item.id,item.media_type,false));carousel.appendChild(card);}); }
-    function updatePagination(){ document.getElementById('page-indicator').innerText=`Page ${currentPage}`; document.getElementById('prev-page').disabled=currentPage===1; document.getElementById('next-page').disabled=currentPage>=totalPages; }
-    document.getElementById('prev-page').onclick=()=>{ if(currentPage>1){ currentPage--; loadGridContent(); } };
-    document.getElementById('next-page').onclick=()=>{ if(currentPage<totalPages){ currentPage++; loadGridContent(); } };
-    document.querySelectorAll('.type-btn').forEach(btn=>btn.onclick=()=>{ document.querySelectorAll('.type-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); mediaType=btn.dataset.type; activeGenreId=null; document.getElementById('selectedGenreName').innerText='All'; buildGenreDropdown(); currentPage=1; loadGridContent(); });
-    document.getElementById('apply-filter').onclick=()=>{ currentPage=1; loadGridContent(); };
-    document.getElementById('back-btn').onclick=()=>{ document.getElementById('movie-modal').style.display='none'; document.body.style.overflow=''; };
-    document.getElementById('refresh-player').onclick=()=>{ if(currentModalType) buildSourceButtonsForModal(currentModalType, currentModalId, currentSeason, currentEpisode); };
-    document.getElementById('season-select')?.addEventListener('change',(e)=>{ currentSeason=parseInt(e.target.value); loadEpisodesForModal(currentModalId,currentSeason); });
-    document.getElementById('episode-select')?.addEventListener('change',(e)=>{ currentEpisode=parseInt(e.target.value); buildSourceButtonsForModal(currentModalType,currentModalId,currentSeason,currentEpisode); });
-    document.getElementById('lang-sub')?.addEventListener('click',()=>{ document.getElementById('lang-sub').classList.add('active'); document.getElementById('lang-dub').classList.remove('active'); });
-    document.getElementById('lang-dub')?.addEventListener('click',()=>{ document.getElementById('lang-dub').classList.add('active'); document.getElementById('lang-sub').classList.remove('active'); });
-    document.getElementById('countryDropdownBtn').onclick=(e)=>{ e.stopPropagation(); document.getElementById('countryDropdownMenu').classList.toggle('show'); };
-    document.getElementById('genreDropdownBtn').onclick=(e)=>{ e.stopPropagation(); document.getElementById('genreDropdownMenu').classList.toggle('show'); };
-    document.addEventListener('click',()=>{ document.getElementById('countryDropdownMenu')?.classList.remove('show'); document.getElementById('genreDropdownMenu')?.classList.remove('show'); });
     
-    document.getElementById('search-input').addEventListener('input', (e) => {
-        searchQuery = e.target.value.trim();
-        if(searchQuery.length > 2) {
-            const searchUrl = `${API_BASE}/search/${mediaType === 'movie' ? 'movie' : 'tv'}?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(searchQuery)}&page=1`;
-            fetch(searchUrl, {headers:{'Authorization':`Bearer ${TMDB_READ_TOKEN}`}})
-                .then(r=>r.json())
-                .then(data=>{ renderGrid(data.results||[], mediaType); totalPages = Math.min(data.total_pages||1, 20); updatePagination(); })
-                .catch(()=>{});
-        } else if(searchQuery === '') loadGridContent();
+    async function loadAnimeGrid() {
+        const baseParams = `&page=${currentPage}&sort_by=${filterSort}`;
+        const voteFilter = filterRating ? `&vote_average.gte=${filterRating}` : '';
+        const yearFilter = filterYear ? `&first_air_date_year=${filterYear}` : '';
+        const movieUrl = `${API_BASE}/discover/movie?api_key=${TMDB_API_KEY}&with_genres=16&with_original_language=ja${baseParams}${voteFilter}${yearFilter.replace('first_air_date_year','primary_release_year')}`;
+        const tvUrl = `${API_BASE}/discover/tv?api_key=${TMDB_API_KEY}&with_genres=16&with_original_language=ja${baseParams}${voteFilter}${yearFilter}`;
+        const [mRes, tRes] = await Promise.all([fetch(movieUrl,{headers:{'Authorization':`Bearer ${TMDB_READ_TOKEN}`}}), fetch(tvUrl,{headers:{'Authorization':`Bearer ${TMDB_READ_TOKEN}`}})]);
+        const mData=await mRes.json(), tData=await tRes.json();
+        let combined = [...(mData.results||[]).map(m=>({...m, media_type:'movie', isAnime:true})), ...(tData.results||[]).map(t=>({...t, media_type:'tv', isAnime:true}))];
+        combined.sort((a,b)=> (b.popularity||0)-(a.popularity||0));
+        renderGrid(combined, 'anime');
+        totalPages = 10;
+    }
+    
+    function renderGrid(items, type){
+        const gridDiv = document.getElementById('movies-grid');
+        gridDiv.innerHTML = '';
+        if(!items.length){ gridDiv.innerHTML='<div style="grid-column:1/-1; text-align:center; padding:3rem;">No results</div>'; return; }
+        items.forEach(item => gridDiv.appendChild(createCard(item, type)));
+    }
+    
+    function createCard(item, forcedType){
+        const card = document.createElement('div'); card.className = 'movie-card';
+        let type = item.media_type || forcedType;
+        const isAnime = item.isAnime || forcedType === 'anime';
+        const title = (type === 'movie') ? (item.title || item.name) : (item.name || item.title);
+        const year = (type === 'movie' ? item.release_date : item.first_air_date)?.slice(0,4) || 'N/A';
+        const rating = item.vote_average || 0;
+        const ratingClass = rating >= 7.5 ? 'green' : rating >= 5 ? 'orange' : 'red';
+        const poster = item.poster_path ? IMG_BASE+item.poster_path : 'https://via.placeholder.com/300x450?text=No+Poster';
+        let badges = '';
+        if(type === 'tv') badges += '<span class="tv-badge">TV</span>';
+        if(isAnime) badges += '<span class="anime-badge">ANIME</span>';
+        card.innerHTML = `<img class="movie-poster" src="${poster}" loading="lazy">${badges}<div class="movie-info"><h3>${title}</h3><div class="movie-meta"><span class="${ratingClass}"><i class="fas fa-star"></i>${rating.toFixed(1)}</span><span>${year}</span></div></div><div class="play-overlay"><i class="fas fa-play"></i></div>`;
+        card.addEventListener('click', ()=> openPlayer(item.id, type, isAnime));
+        return card;
+    }
+    
+    async function loadCarousel() {
+        const options = { headers: { 'Authorization': `Bearer ${TMDB_READ_TOKEN}` } };
+        const [movieNow, tvNow] = await Promise.all([
+            fetch(`${API_BASE}/movie/now_playing?api_key=${TMDB_API_KEY}&page=1`, options),
+            fetch(`${API_BASE}/tv/on_the_air?api_key=${TMDB_API_KEY}&page=1`, options)
+        ]);
+        let slides = [...(await movieNow.json()).results.slice(0,6).map(m=>({...m, media_type:'movie'})), ...(await tvNow.json()).results.slice(0,6).map(t=>({...t, media_type:'tv'}))];
+        slides.sort((a,b)=>(b.popularity||0)-(a.popularity||0));
+        const carouselDiv = document.getElementById('latest-carousel');
+        carouselDiv.innerHTML = '';
+        slides.slice(0,10).forEach(item => {
+            const card = document.createElement('div'); card.className = 'slide-card';
+            const poster = item.poster_path ? IMG_BASE+item.poster_path : 'https://via.placeholder.com/400x600';
+            const title = item.title || item.name;
+            const year = (item.release_date || item.first_air_date || '').slice(0,4);
+            card.innerHTML = `<img class="slide-poster" src="${poster}"><div class="slide-info"><h4>${title}</h4><div class="slide-meta"><span>${year}</span><span>⭐ ${item.vote_average?.toFixed(1)||'?'}</span></div></div>`;
+            card.addEventListener('click',()=> openPlayer(item.id, item.media_type, false));
+            carouselDiv.appendChild(card);
+        });
+    }
+    
+    function openPlayer(id, type, isAnime){
+        const modal = document.getElementById('movie-modal'); modal.style.display='flex'; document.body.style.overflow='hidden';
+        currentModalId=id; currentModalType=type; currentIsAnime=isAnime;
+        document.getElementById('movie-player').src='';
+        fetch(`${API_BASE}/${type==='movie'?'movie':'tv'}/${id}`,{headers:{'Authorization':`Bearer ${TMDB_READ_TOKEN}`}}).then(r=>r.json()).then(d=>{
+            document.getElementById('movie-title-header').innerText=d.title||d.name||'';
+            document.getElementById('modal-title').innerText=d.title||d.name||'';
+            document.getElementById('modal-overview').innerText=d.overview||'';
+            document.getElementById('modal-poster').src=d.poster_path?IMG_BASE+d.poster_path:'';
+        });
+        const langDiv = document.getElementById('lang-toggle-container');
+        langDiv.style.display = isAnime ? 'flex' : 'none';
+        if(type==='tv' || isAnime){
+            document.getElementById('tv-controls').style.display='block';
+            fetch(`${API_BASE}/tv/${id}`,{headers:{'Authorization':`Bearer ${TMDB_READ_TOKEN}`}}).then(r=>r.json()).then(data=>{
+                const seasonSelect=document.getElementById('season-select'); seasonSelect.innerHTML='';
+                if(data.seasons) data.seasons.forEach(s=>{if(s.season_number>0){let opt=document.createElement('option');opt.value=s.season_number;opt.innerText=`S${s.season_number} (${s.episode_count} eps)`;seasonSelect.appendChild(opt);}});
+                currentSeason = data.seasons?.find(s=>s.season_number>0)?.season_number||1;
+                loadEpisodes(id,currentSeason);
+            });
+        } else { document.getElementById('tv-controls').style.display='none'; buildSourceButtons(type,id,null,null,currentAudioLang,isAnime); }
+    }
+    
+    function loadEpisodes(tvId, season){
+        fetch(`${API_BASE}/tv/${tvId}/season/${season}`,{headers:{'Authorization':`Bearer ${TMDB_READ_TOKEN}`}}).then(r=>r.json()).then(data=>{
+            const epSelect=document.getElementById('episode-select'); epSelect.innerHTML='';
+            if(data.episodes) data.episodes.forEach(ep=>{let opt=document.createElement('option');opt.value=ep.episode_number;opt.innerText=`E${ep.episode_number}: ${ep.name}`;epSelect.appendChild(opt);});
+            currentEpisode = data.episodes?.[0]?.episode_number||1;
+            buildSourceButtons(currentModalType,currentModalId,currentSeason,currentEpisode,currentAudioLang,currentIsAnime);
+        });
+    }
+    
+    function buildSourceButtons(type,id,season,episode,audioLang,isAnime){
+        const container=document.getElementById('source-buttons'); container.innerHTML='';
+        const sources=[
+            {name:'VidLink',url:`https://vidlink.pro/${type}/${id}${type==='tv'?`/${season}/${episode}`:''}?autoplay=1`},
+            {name:'VidSrc',url:`https://vidsrc.xyz/embed/${type}?tmdb=${id}${type==='tv'?`&season=${season}&episode=${episode}`:''}${(isAnime&&audioLang==='dub')?'&dub=true':''}`},
+            {name:'2Embed',url:`https://www.2embed.cc/embed${type==='movie'?`/movie/${id}`:`/tv/${id}&s=${season}&e=${episode}`}`}
+        ];
+        sources.forEach((s,idx)=>{
+            const btn=document.createElement('button'); btn.className='source-btn'+(idx===currentSourceIndex?' active':''); btn.innerText=s.name;
+            btn.onclick=()=>{ currentSourceIndex=idx; document.getElementById('movie-player').src=s.url; document.querySelectorAll('.source-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); };
+            container.appendChild(btn);
+        });
+        if(sources.length) document.getElementById('movie-player').src=sources[0].url;
+    }
+    
+    function updatePagination(){
+        document.getElementById('page-indicator').innerText = `Page ${currentPage}`;
+        document.getElementById('prev-page').disabled = currentPage===1;
+        document.getElementById('next-page').disabled = currentPage>=totalPages;
+    }
+    
+    document.getElementById('prev-page').addEventListener('click',()=>{ if(currentPage>1){ currentPage--; loadGridContent(); } });
+    document.getElementById('next-page').addEventListener('click',()=>{ if(currentPage<totalPages){ currentPage++; loadGridContent(); } });
+    document.querySelectorAll('.type-btn').forEach(btn=>btn.addEventListener('click',()=>{
+        document.querySelectorAll('.type-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active');
+        mediaType = btn.dataset.type; activeGenreId = null; document.getElementById('selectedGenreName').innerText='All';
+        buildGenreDropdown(); currentPage=1; loadGridContent();
+    }));
+    document.getElementById('apply-filter').addEventListener('click',()=>{ currentPage=1; loadGridContent(); });
+    document.getElementById('search-input').addEventListener('input',(e)=>{
+        clearTimeout(window.srch); window.srch=setTimeout(()=>{
+            const q=e.target.value.trim();
+            if(q) searchGlobal(q); else { activeGenreId=null; currentPage=1; loadGridContent(); }
+        },400);
     });
+    async function searchGlobal(query){
+        isLoading=true; document.getElementById('movies-grid').innerHTML='<div style="text-align:center;"><i class="fas fa-spinner fa-spin"></i> Searching...</div>';
+        if(mediaType==='anime'){ await loadAnimeGrid(); isLoading=false; updatePagination(); return; }
+        let url = mediaType==='movie'? `${API_BASE}/search/movie?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(query)}&page=${currentPage}` : `${API_BASE}/search/tv?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(query)}&page=${currentPage}`;
+        const res=await fetch(url,{headers:{'Authorization':`Bearer ${TMDB_READ_TOKEN}`}});
+        const data=await res.json(); renderGrid(data.results||[],mediaType); totalPages=Math.min(data.total_pages||1,20); isLoading=false; updatePagination();
+    }
+    document.getElementById('countryDropdownBtn').addEventListener('click',(e)=>{ e.stopPropagation(); document.getElementById('countryDropdownMenu').classList.toggle('show'); });
+    document.getElementById('genreDropdownBtn').addEventListener('click',(e)=>{ e.stopPropagation(); document.getElementById('genreDropdownMenu').classList.toggle('show'); });
+    document.addEventListener('click',()=>{ document.getElementById('countryDropdownMenu')?.classList.remove('show'); document.getElementById('genreDropdownMenu')?.classList.remove('show'); });
+    document.getElementById('back-btn').addEventListener('click',()=>{ document.getElementById('movie-player').src=''; document.getElementById('movie-modal').style.display='none'; document.body.style.overflow=''; });
+    document.getElementById('refresh-player').addEventListener('click',()=>{ let p=document.getElementById('movie-player'); let src=p.src; p.src=''; setTimeout(()=>p.src=src,100); });
+    document.getElementById('season-select')?.addEventListener('change',(e)=>{ currentSeason=parseInt(e.target.value); loadEpisodes(currentModalId,currentSeason); });
+    document.getElementById('episode-select')?.addEventListener('change',(e)=>{ currentEpisode=parseInt(e.target.value); buildSourceButtons(currentModalType,currentModalId,currentSeason,currentEpisode,currentAudioLang,currentIsAnime); });
+    document.getElementById('lang-sub')?.addEventListener('click',()=>{ document.getElementById('lang-sub').classList.add('active'); document.getElementById('lang-dub').classList.remove('active'); currentAudioLang='sub'; if(currentModalType==='tv') buildSourceButtons(currentModalType,currentModalId,currentSeason,currentEpisode,'sub',currentIsAnime); else buildSourceButtons(currentModalType,currentModalId,null,null,'sub',currentIsAnime); });
+    document.getElementById('lang-dub')?.addEventListener('click',()=>{ document.getElementById('lang-dub').classList.add('active'); document.getElementById('lang-sub').classList.remove('active'); currentAudioLang='dub'; if(currentModalType==='tv') buildSourceButtons(currentModalType,currentModalId,currentSeason,currentEpisode,'dub',currentIsAnime); else buildSourceButtons(currentModalType,currentModalId,null,null,'dub',currentIsAnime); });
     
-    (async()=>{ await loadGenres(); buildCountryDropdown(); buildGenreDropdown(); loadCarousel(); loadGridContent(); })();
+    (async ()=>{
+        await loadGenres(); buildCountryDropdown(); buildGenreDropdown(); loadCarousel(); loadGridContent();
+    })();
 })();
 </script>
 </body>
