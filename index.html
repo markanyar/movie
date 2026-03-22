@@ -1,8 +1,9 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>MARKANYAR - Advanced Stream Hub</title>
+    <title>MARKANYAR - Stream Hub</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=yes">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
@@ -344,8 +345,9 @@
         #movie-player { width: 100%; height: 100%; border: none; }
         .info-bar { background: #0c0c0c; border-top: 1px solid #222; padding: 1rem; max-height: 40vh; overflow-y: auto; }
         .source-buttons { display: flex; gap: 8px; flex-wrap: wrap; margin: 8px 0; }
-        .source-btn { background: #1a1a1a; border: 1px solid #e50914; color: white; padding: 6px 14px; border-radius: 40px; cursor: pointer; font-size: 0.8rem; }
-        .source-btn.active { background: #e50914; }
+        .source-btn { background: #1a1a1a; border: 1px solid #e50914; color: white; padding: 8px 18px; border-radius: 40px; cursor: pointer; font-size: 0.85rem; font-weight: 600; transition: 0.2s; }
+        .source-btn:hover { background: #e50914; transform: scale(1.02); }
+        .source-btn.active { background: #e50914; box-shadow: 0 0 12px #e50914; }
         .lang-toggle { display: flex; gap: 0.5rem; align-items: center; margin-top: 10px; }
         .lang-btn { background: #1a1a1a; border: 1px solid #444; padding: 6px 16px; border-radius: 40px; cursor: pointer; }
         .lang-btn.active { background: #e50914; color: white; }
@@ -356,7 +358,9 @@
             .filters { top: 112px; }
             .slide-card { flex: 0 0 92%; }
         }
-        .warning-note { font-size: 0.7rem; color: #ffaa44; margin-top: 5px; }
+        .warning-note { font-size: 0.7rem; color: #ffaa44; margin-top: 8px; background: rgba(0,0,0,0.6); padding: 6px 12px; border-radius: 20px; display: inline-block; }
+        .source-info { font-size: 0.7rem; color: #888; margin-top: 5px; }
+        .badge { background: #e50914; padding: 2px 8px; border-radius: 20px; font-size: 0.7rem; margin-left: 8px; }
     </style>
 </head>
 <body>
@@ -365,7 +369,7 @@
         <h1><i class="fas fa-film"></i> MARKANYAR</h1>
         <div id="search-container">
             <i class="fas fa-search search-icon"></i>
-            <input type="text" id="search-input" placeholder="Search...">
+            <input type="text" id="search-input" placeholder="Search movies, TV shows...">
         </div>
         <button class="user-btn" id="fullscreen-toggle"><i class="fas fa-expand"></i></button>
     </header>
@@ -373,7 +377,7 @@
         <div class="filter-row">
             <div class="media-type-selector">
                 <button class="type-btn active" data-type="movie">🎬 Movies</button>
-                <button class="type-btn" data-type="tv">📺 TV</button>
+                <button class="type-btn" data-type="tv">📺 TV Series</button>
                 <button class="type-btn" data-type="anime">✨ Anime</button>
             </div>
             <div class="country-dropdown-container"><div class="country-dropdown-button" id="countryDropdownBtn"><i class="fas fa-globe"></i> <span id="selectedCountryName">All Countries</span></div><div class="country-dropdown-menu" id="countryDropdownMenu"></div></div>
@@ -386,17 +390,17 @@
             <button class="apply-filter-btn" id="apply-filter"><i class="fas fa-sliders-h"></i> Apply</button>
         </div>
     </div>
-    <div class="carousel-section"><div class="section-header"><h2><i class="fas fa-fire"></i> NOW PLAYING</h2><span>← Swipe →</span></div><div class="carousel-wrapper"><div class="card-scroll" id="latest-carousel"></div></div></div>
+    <div class="carousel-section"><div class="section-header"><h2><i class="fas fa-fire"></i> TRENDING NOW</h2><span>← Swipe →</span></div><div class="carousel-wrapper"><div class="card-scroll" id="latest-carousel"></div></div></div>
     <div id="movies-grid"></div>
     <div class="pagination-bar"><button class="page-btn" id="prev-page" disabled><i class="fas fa-chevron-left"></i></button><span id="page-indicator">Page 1</span><button class="page-btn" id="next-page"><i class="fas fa-chevron-right"></i></button></div>
 </div>
-<footer class="site-footer">developed with <i class="fas fa-heart" style="color:#e50914;"></i> by MARK ANYAR | 🚀 Advanced Stream Engines</footer>
+<footer class="site-footer">developed with <i class="fas fa-heart" style="color:#e50914;"></i> by MARK ANYAR | Premium Streaming Sources</footer>
 
 <div id="movie-modal" class="movie-modal">
     <div class="modal-content">
-        <div class="top-controls"><button id="back-btn"><i class="fas fa-arrow-left"></i></button><div id="movie-title-header"></div><button id="refresh-player"><i class="fas fa-redo"></i></button></div>
-        <div class="player-main-area"><div class="player-container"><iframe id="movie-player" allowfullscreen referrerpolicy="no-referrer" allow="autoplay; encrypted-media"></iframe></div></div>
-        <div class="info-bar"><div style="display:flex; gap:1rem;"><img id="modal-poster" style="width:80px; height:120px; object-fit:cover; border-radius:12px;"><div><h2 id="modal-title"></h2><p id="modal-overview" style="color:#ccc;"></p><div id="lang-toggle-container" class="lang-toggle" style="display:none;"><span>Audio:</span><button id="lang-sub" class="lang-btn active">SUB</button><button id="lang-dub" class="lang-btn">DUB</button></div><div id="source-selector"><div class="source-buttons" id="source-buttons"></div><div class="warning-note"><i class="fas fa-info-circle"></i> If player fails, try another source</div></div><div id="tv-controls" style="display:none; margin-top:1rem;"><select id="season-select"></select> <select id="episode-select"></select></div></div></div></div>
+        <div class="top-controls"><button id="back-btn"><i class="fas fa-arrow-left"></i></button><div id="movie-title-header" style="font-weight:600; font-size:1rem; max-width:60%; overflow:hidden; text-overflow:ellipsis;"></div><button id="refresh-player"><i class="fas fa-redo"></i></button></div>
+        <div class="player-main-area"><div class="player-container"><iframe id="movie-player" allowfullscreen referrerpolicy="no-referrer" allow="autoplay; encrypted-media; fullscreen"></iframe></div></div>
+        <div class="info-bar"><div style="display:flex; gap:1rem; flex-wrap:wrap;"><img id="modal-poster" style="width:80px; height:120px; object-fit:cover; border-radius:12px;"><div style="flex:1;"><h2 id="modal-title"></h2><p id="modal-overview" style="color:#ccc; margin-top:6px; font-size:0.85rem;"></p><div id="lang-toggle-container" class="lang-toggle" style="display:none;"><span>Audio:</span><button id="lang-sub" class="lang-btn active">🇯🇵 SUB</button><button id="lang-dub" class="lang-btn">🇺🇸 DUB</button></div><div id="source-selector"><div class="source-buttons" id="source-buttons"></div><div class="warning-note"><i class="fas fa-info-circle"></i> Try different sources if playback fails | Best quality: VidSrc, VidLink</div></div><div id="tv-controls" style="display:none; margin-top:1rem;"><select id="season-select" style="background:#1a1a1a; color:white; border:1px solid #e50914; padding:6px 12px; border-radius:20px;"></select> <select id="episode-select" style="background:#1a1a1a; color:white; border:1px solid #e50914; padding:6px 12px; border-radius:20px; margin-left:8px;"></select></div></div></div></div>
     </div>
 </div>
 
@@ -414,28 +418,49 @@
     let filterYear = '', filterRating = '', filterSort = 'popularity.desc';
     let currentModalId, currentModalType, currentIsAnime, currentSeason = 1, currentEpisode = 1, currentAudioLang = 'sub', currentSourceIndex = 0;
     
-    // ---- ADVANCED SOURCES (6 robust embedders) ----
-    const ADVANCED_SOURCES = [
-        { name: '🚀 AutoEmbed', urlTemplate: (type, id, season, ep, dub) => `https://player.autoembed.cc/embed/${type === 'movie' ? 'movie' : 'tv'}/${id}${type === 'tv' ? `/${season}/${ep}` : ''}?autoplay=1` },
-        { name: '🎬 MovieWeb', urlTemplate: (type, id, season, ep) => `https://multiembed.mov/?video_id=${id}&tmdb=1&autoplay=1${type === 'tv' ? `&s=${season}&e=${ep}` : ''}` },
-        { name: '⭐ SuperEmbed', urlTemplate: (type, id, season, ep) => `https://superembed.stream/${type === 'movie' ? 'movie' : 'tv'}/${id}${type === 'tv' ? `/${season}/${ep}` : ''}?autoplay=1` },
-        { name: '🔥 VidBinge', urlTemplate: (type, id, season, ep) => `https://vidbinge.dev/embed/${type === 'movie' ? 'movie' : 'tv'}/${id}${type === 'tv' ? `/${season}/${ep}` : ''}` },
-        { name: '🌊 StreamHub', urlTemplate: (type, id, season, ep) => `https://embed.su/embed/${type === 'movie' ? 'movie' : 'tv'}/${id}${type === 'tv' ? `/${season}/${ep}` : ''}` },
-        { name: '🎞️ HDPlay', urlTemplate: (type, id, season, ep, dub) => `https://hlsplayer.xyz/embed/${type}/${id}${type === 'tv' ? `/${season}/${ep}` : ''}?auto=1${dub === 'dub' ? '&dub=1' : ''}` }
+    // === RELIABLE STREAMING SOURCES ===
+    // Kept only VidLink, VidSrc, 2Embed + added additional working sources
+    const STREAMING_SOURCES = [
+        { 
+            name: '🎬 VidSrc (Best Quality)', 
+            urlTemplate: (type, id, season, ep, dub) => {
+                if(type === 'movie') return `https://vidsrc.xyz/embed/movie?tmdb=${id}&autoplay=1`;
+                return `https://vidsrc.xyz/embed/tv?tmdb=${id}&season=${season}&episode=${ep}&autoplay=1${dub === 'dub' ? '&dub=true' : ''}`;
+            }
+        },
+        { 
+            name: '🔗 VidLink (Fast)', 
+            urlTemplate: (type, id, season, ep) => {
+                if(type === 'movie') return `https://vidlink.pro/movie/${id}?autoplay=1`;
+                return `https://vidlink.pro/tv/${id}/${season}/${ep}?autoplay=1`;
+            }
+        },
+        { 
+            name: '📺 2Embed (Stable)', 
+            urlTemplate: (type, id, season, ep) => {
+                if(type === 'movie') return `https://www.2embed.cc/embed/movie/${id}`;
+                return `https://www.2embed.cc/embed/tv/${id}&s=${season}&e=${ep}`;
+            }
+        },
+        { 
+            name: '⭐ MoviesAPI (HD)', 
+            urlTemplate: (type, id, season, ep) => {
+                if(type === 'movie') return `https://embed.su/embed/movie/${id}`;
+                return `https://embed.su/embed/tv/${id}/${season}/${ep}`;
+            }
+        },
+        { 
+            name: '🎥 AutoEmbed (Backup)', 
+            urlTemplate: (type, id, season, ep) => {
+                if(type === 'movie') return `https://player.autoembed.cc/embed/movie/${id}?autoplay=1`;
+                return `https://player.autoembed.cc/embed/tv/${id}/${season}/${ep}?autoplay=1`;
+            }
+        }
     ];
-    
-    // Fallback legacy for compatibility
-    const LEGACY_SOURCES = [
-        { name: 'VidLink', urlTemplate: (type, id, season, ep) => `https://vidlink.pro/${type}/${id}${type === 'tv' ? `/${season}/${ep}` : ''}?autoplay=1` },
-        { name: 'VidSrc', urlTemplate: (type, id, season, ep, dub) => `https://vidsrc.xyz/embed/${type}?tmdb=${id}${type === 'tv' ? `&season=${season}&episode=${ep}` : ''}${dub === 'dub' ? '&dub=true' : ''}` },
-        { name: '2Embed', urlTemplate: (type, id, season, ep) => `https://www.2embed.cc/embed${type === 'movie' ? `/movie/${id}` : `/tv/${id}&s=${season}&e=${ep}`}` }
-    ];
-    
-    const ALL_SOURCES = [...ADVANCED_SOURCES, ...LEGACY_SOURCES];
     
     const countryList = [
         { code: 'all', name: '🌍 All Countries' }, { code: 'US', name: '🇺🇸 United States' }, { code: 'GB', name: '🇬🇧 UK' }, { code: 'IN', name: '🇮🇳 India' },
-        { code: 'NG', name: '🇳🇬 Nigeria' }, { code: 'KR', name: '🇰🇷 South Korea' }, { code: 'JP', name: '🇯🇵 Japan' }, { code: 'FR', name: '🇫🇷 France' }
+        { code: 'NG', name: '🇳🇬 Nigeria' }, { code: 'KR', name: '🇰🇷 South Korea' }, { code: 'JP', name: '🇯🇵 Japan' }, { code: 'FR', name: '🇫🇷 France' }, { code: 'CA', name: '🇨🇦 Canada' }
     ];
     
     function buildCountryDropdown() {
@@ -454,7 +479,7 @@
         try {
             const [movieRes, tvRes] = await Promise.all([fetch(`${API_BASE}/genre/movie/list?api_key=${TMDB_API_KEY}`, options), fetch(`${API_BASE}/genre/tv/list?api_key=${TMDB_API_KEY}`, options)]);
             movieGenres = (await movieRes.json()).genres || []; tvGenres = (await tvRes.json()).genres || [];
-        } catch(e){}
+        } catch(e){ console.error(e); }
     }
     
     function buildGenreDropdown() {
@@ -469,20 +494,55 @@
         }));
     }
     
-    async function loadGridContent() { /* simplified keep core */ if(isLoading) return; isLoading=true; document.getElementById('movies-grid').innerHTML='<div style="text-align:center;padding:2rem;"><i class="fas fa-spinner fa-spin"></i> Loading...</div>'; filterYear=document.getElementById('filter-year').value; filterRating=document.getElementById('filter-rating').value; filterSort=document.getElementById('filter-sort').value; let url=''; const base=`&page=${currentPage}&sort_by=${filterSort}`; const vote=filterRating?`&vote_average.gte=${filterRating}`:''; const year=filterYear?(mediaType==='movie'?`&primary_release_year=${filterYear}`:`&first_air_date_year=${filterYear}`):''; const countryParam=(activeCountryCode!=='all' && mediaType!=='anime')?`&with_origin_country=${activeCountryCode}`:''; if(mediaType==='movie') url=`${API_BASE}/discover/movie?api_key=${TMDB_API_KEY}${activeGenreId?`&with_genres=${activeGenreId}`:''}${base}${vote}${year}${countryParam}`; else if(mediaType==='tv') url=`${API_BASE}/discover/tv?api_key=${TMDB_API_KEY}${activeGenreId?`&with_genres=${activeGenreId}`:''}${base}${vote}${year}${countryParam}`; else { await loadAnimeGrid(); isLoading=false; updatePagination(); return; } try{ const res=await fetch(url,{headers:{'Authorization':`Bearer ${TMDB_READ_TOKEN}`}}); const data=await res.json(); renderGrid(data.results||[],mediaType); totalPages=Math.min(data.total_pages||1,20); }catch(e){ document.getElementById('movies-grid').innerHTML='<p style="color:red;text-align:center;">Error</p>'; } finally{ isLoading=false; updatePagination(); } }
+    async function loadGridContent() {
+        if(isLoading) return; isLoading=true; 
+        document.getElementById('movies-grid').innerHTML='<div style="text-align:center;padding:2rem;"><i class="fas fa-spinner fa-spin"></i> Loading amazing content...</div>'; 
+        filterYear=document.getElementById('filter-year').value; 
+        filterRating=document.getElementById('filter-rating').value; 
+        filterSort=document.getElementById('filter-sort').value; 
+        let url=''; const base=`&page=${currentPage}&sort_by=${filterSort}`; 
+        const vote=filterRating?`&vote_average.gte=${filterRating}`:''; 
+        const year=filterYear?(mediaType==='movie'?`&primary_release_year=${filterYear}`:`&first_air_date_year=${filterYear}`):''; 
+        const countryParam=(activeCountryCode!=='all' && mediaType!=='anime')?`&with_origin_country=${activeCountryCode}`:'';
+        if(mediaType==='movie') url=`${API_BASE}/discover/movie?api_key=${TMDB_API_KEY}${activeGenreId?`&with_genres=${activeGenreId}`:''}${base}${vote}${year}${countryParam}`;
+        else if(mediaType==='tv') url=`${API_BASE}/discover/tv?api_key=${TMDB_API_KEY}${activeGenreId?`&with_genres=${activeGenreId}`:''}${base}${vote}${year}${countryParam}`;
+        else { await loadAnimeGrid(); isLoading=false; updatePagination(); return; }
+        try{ const res=await fetch(url,{headers:{'Authorization':`Bearer ${TMDB_READ_TOKEN}`}}); const data=await res.json(); renderGrid(data.results||[],mediaType); totalPages=Math.min(data.total_pages||1,20); } catch(e){ document.getElementById('movies-grid').innerHTML='<p style="color:red;text-align:center;">Network error. Refresh page.</p>'; } finally{ isLoading=false; updatePagination(); }
+    }
     
-    async function loadAnimeGrid(){ const mUrl=`${API_BASE}/discover/movie?api_key=${TMDB_API_KEY}&with_genres=16&with_original_language=ja&page=${currentPage}&sort_by=${filterSort}`; const tUrl=`${API_BASE}/discover/tv?api_key=${TMDB_API_KEY}&with_genres=16&with_original_language=ja&page=${currentPage}&sort_by=${filterSort}`; const [mRes,tRes]=await Promise.all([fetch(mUrl,{headers:{'Authorization':`Bearer ${TMDB_READ_TOKEN}`}}),fetch(tUrl,{headers:{'Authorization':`Bearer ${TMDB_READ_TOKEN}`}})]); const mData=await mRes.json(), tData=await tRes.json(); let combined=[...(mData.results||[]).map(m=>({...m,media_type:'movie',isAnime:true})),...(tData.results||[]).map(t=>({...t,media_type:'tv',isAnime:true}))]; combined.sort((a,b)=>(b.popularity||0)-(a.popularity||0)); renderGrid(combined,'anime'); totalPages=10; }
+    async function loadAnimeGrid(){ 
+        const mUrl=`${API_BASE}/discover/movie?api_key=${TMDB_API_KEY}&with_genres=16&with_original_language=ja&page=${currentPage}&sort_by=${filterSort}`; 
+        const tUrl=`${API_BASE}/discover/tv?api_key=${TMDB_API_KEY}&with_genres=16&with_original_language=ja&page=${currentPage}&sort_by=${filterSort}`; 
+        const [mRes,tRes]=await Promise.all([fetch(mUrl,{headers:{'Authorization':`Bearer ${TMDB_READ_TOKEN}`}}),fetch(tUrl,{headers:{'Authorization':`Bearer ${TMDB_READ_TOKEN}`}})]); 
+        const mData=await mRes.json(), tData=await tRes.json(); 
+        let combined=[...(mData.results||[]).map(m=>({...m,media_type:'movie',isAnime:true})),...(tData.results||[]).map(t=>({...t,media_type:'tv',isAnime:true}))]; 
+        combined.sort((a,b)=>(b.popularity||0)-(a.popularity||0)); renderGrid(combined,'anime'); totalPages=10; 
+    }
     
-    function renderGrid(items, type){ const grid=document.getElementById('movies-grid'); grid.innerHTML=''; if(!items.length){ grid.innerHTML='<div style="text-align:center;padding:3rem;">No results</div>'; return; } items.forEach(item=>grid.appendChild(createCard(item,type))); }
-    function createCard(item,forcedType){ const card=document.createElement('div'); card.className='movie-card'; let type=item.media_type||forcedType; const isAnime=item.isAnime||forcedType==='anime'; const title=(type==='movie')?(item.title||item.name):(item.name||item.title); const year=(type==='movie'?item.release_date:item.first_air_date)?.slice(0,4)||'N/A'; const rating=item.vote_average||0; const poster=item.poster_path?IMG_BASE+item.poster_path:'https://via.placeholder.com/300x450?text=No+Poster'; card.innerHTML=`<img class="movie-poster" src="${poster}" loading="lazy"><div class="movie-info"><h3>${title}</h3><div class="movie-meta"><span class="${rating>=7?'green':''}"><i class="fas fa-star"></i>${rating.toFixed(1)}</span><span>${year}</span></div></div><div class="play-overlay"><i class="fas fa-play"></i></div>`; card.addEventListener('click',()=>openPlayer(item.id,type,isAnime)); return card; }
+    function renderGrid(items, type){ const grid=document.getElementById('movies-grid'); grid.innerHTML=''; if(!items.length){ grid.innerHTML='<div style="text-align:center;padding:3rem;">🎬 No results found</div>'; return; } items.forEach(item=>grid.appendChild(createCard(item,type))); }
+    function createCard(item,forcedType){ const card=document.createElement('div'); card.className='movie-card'; let type=item.media_type||forcedType; const isAnime=item.isAnime||forcedType==='anime'; const title=(type==='movie')?(item.title||item.name):(item.name||item.title); const year=(type==='movie'?item.release_date:item.first_air_date)?.slice(0,4)||'N/A'; const rating=item.vote_average||0; const poster=item.poster_path?IMG_BASE+item.poster_path:'https://via.placeholder.com/300x450?text=No+Poster'; card.innerHTML=`<img class="movie-poster" src="${poster}" loading="lazy"><div class="movie-info"><h3>${title}</h3><div><span class="${rating>=7?'green':''}"><i class="fas fa-star"></i> ${rating.toFixed(1)}</span> <span style="margin-left:8px;">${year}</span></div></div><div class="play-overlay"><i class="fas fa-play"></i></div>`; card.addEventListener('click',()=>openPlayer(item.id,type,isAnime)); return card; }
     
-    async function loadCarousel(){ const options={headers:{'Authorization':`Bearer ${TMDB_READ_TOKEN}`}}; const[mNow,tNow]=await Promise.all([fetch(`${API_BASE}/movie/now_playing?api_key=${TMDB_API_KEY}&page=1`,options),fetch(`${API_BASE}/tv/on_the_air?api_key=${TMDB_API_KEY}&page=1`,options)]); let slides=[...(await mNow.json()).results.slice(0,6).map(m=>({...m,media_type:'movie'})),...(await tNow.json()).results.slice(0,6).map(t=>({...t,media_type:'tv'}))]; slides.sort((a,b)=>(b.popularity||0)-(a.popularity||0)); const carousel=document.getElementById('latest-carousel'); carousel.innerHTML=''; slides.slice(0,10).forEach(item=>{ const card=document.createElement('div');card.className='slide-card';const poster=item.poster_path?IMG_BASE+item.poster_path:'https://via.placeholder.com/400x600';const title=item.title||item.name;card.innerHTML=`<img class="slide-poster" src="${poster}"><div class="slide-info"><h4>${title}</h4><div class="slide-meta"><span>⭐ ${item.vote_average?.toFixed(1)||'?'}</span></div></div>`;card.addEventListener('click',()=>openPlayer(item.id,item.media_type,false));carousel.appendChild(card);}); }
+    async function loadCarousel(){ 
+        const options={headers:{'Authorization':`Bearer ${TMDB_READ_TOKEN}`}}; 
+        const[mNow,tNow]=await Promise.all([fetch(`${API_BASE}/movie/now_playing?api_key=${TMDB_API_KEY}&page=1`,options),fetch(`${API_BASE}/tv/on_the_air?api_key=${TMDB_API_KEY}&page=1`,options)]); 
+        let slides=[...(await mNow.json()).results.slice(0,6).map(m=>({...m,media_type:'movie'})),...(await tNow.json()).results.slice(0,6).map(t=>({...t,media_type:'tv'}))]; 
+        slides.sort((a,b)=>(b.popularity||0)-(a.popularity||0)); const carousel=document.getElementById('latest-carousel'); carousel.innerHTML=''; slides.slice(0,10).forEach(item=>{ const card=document.createElement('div');card.className='slide-card';const poster=item.poster_path?IMG_BASE+item.poster_path:'https://via.placeholder.com/400x600';const title=item.title||item.name;card.innerHTML=`<img class="slide-poster" src="${poster}"><div class="slide-info"><h4>${title}</h4><div><span>⭐ ${item.vote_average?.toFixed(1)||'?'}</span></div></div>`;card.addEventListener('click',()=>openPlayer(item.id,item.media_type,false));carousel.appendChild(card);}); 
+    }
     
-    function openPlayer(id, type, isAnime){ const modal=document.getElementById('movie-modal'); modal.style.display='flex'; document.body.style.overflow='hidden'; currentModalId=id; currentModalType=type; currentIsAnime=isAnime; document.getElementById('movie-player').src=''; fetch(`${API_BASE}/${type==='movie'?'movie':'tv'}/${id}`,{headers:{'Authorization':`Bearer ${TMDB_READ_TOKEN}`}}).then(r=>r.json()).then(d=>{ document.getElementById('movie-title-header').innerText=d.title||d.name||''; document.getElementById('modal-title').innerText=d.title||d.name||''; document.getElementById('modal-overview').innerText=d.overview||''; document.getElementById('modal-poster').src=d.poster_path?IMG_BASE+d.poster_path:''; }); const langDiv=document.getElementById('lang-toggle-container'); langDiv.style.display=isAnime?'flex':'none'; if(type==='tv'||isAnime){ document.getElementById('tv-controls').style.display='block'; fetch(`${API_BASE}/tv/${id}`,{headers:{'Authorization':`Bearer ${TMDB_READ_TOKEN}`}}).then(r=>r.json()).then(data=>{ const seasonSelect=document.getElementById('season-select'); seasonSelect.innerHTML=''; if(data.seasons) data.seasons.forEach(s=>{ if(s.season_number>0){ let opt=document.createElement('option'); opt.value=s.season_number; opt.innerText=`S${s.season_number} (${s.episode_count} eps)`; seasonSelect.appendChild(opt); } }); currentSeason=data.seasons?.find(s=>s.season_number>0)?.season_number||1; loadEpisodes(id,currentSeason); }); } else { document.getElementById('tv-controls').style.display='none'; buildSourceButtons(type,id,null,null,currentAudioLang,isAnime); } }
+    function openPlayer(id, type, isAnime){ 
+        const modal=document.getElementById('movie-modal'); modal.style.display='flex'; document.body.style.overflow='hidden'; currentModalId=id; currentModalType=type; currentIsAnime=isAnime; document.getElementById('movie-player').src=''; 
+        fetch(`${API_BASE}/${type==='movie'?'movie':'tv'}/${id}`,{headers:{'Authorization':`Bearer ${TMDB_READ_TOKEN}`}}).then(r=>r.json()).then(d=>{ document.getElementById('movie-title-header').innerText=d.title||d.name||''; document.getElementById('modal-title').innerText=d.title||d.name||''; document.getElementById('modal-overview').innerText=d.overview||'No description available.'; document.getElementById('modal-poster').src=d.poster_path?IMG_BASE+d.poster_path:''; }); 
+        const langDiv=document.getElementById('lang-toggle-container'); langDiv.style.display=isAnime?'flex':'none'; 
+        if(type==='tv'||isAnime){ document.getElementById('tv-controls').style.display='block'; fetch(`${API_BASE}/tv/${id}`,{headers:{'Authorization':`Bearer ${TMDB_READ_TOKEN}`}}).then(r=>r.json()).then(data=>{ const seasonSelect=document.getElementById('season-select'); seasonSelect.innerHTML=''; if(data.seasons) data.seasons.forEach(s=>{ if(s.season_number>0){ let opt=document.createElement('option'); opt.value=s.season_number; opt.innerText=`Season ${s.season_number} (${s.episode_count} eps)`; seasonSelect.appendChild(opt); } }); currentSeason=data.seasons?.find(s=>s.season_number>0)?.season_number||1; loadEpisodes(id,currentSeason); }); } else { document.getElementById('tv-controls').style.display='none'; buildSourceButtons(type,id,null,null,currentAudioLang,isAnime); } 
+    }
     
-    function loadEpisodes(tvId, season){ fetch(`${API_BASE}/tv/${tvId}/season/${season}`,{headers:{'Authorization':`Bearer ${TMDB_READ_TOKEN}`}}).then(r=>r.json()).then(data=>{ const epSelect=document.getElementById('episode-select'); epSelect.innerHTML=''; if(data.episodes) data.episodes.forEach(ep=>{ let opt=document.createElement('option'); opt.value=ep.episode_number; opt.innerText=`E${ep.episode_number}: ${ep.name}`; epSelect.appendChild(opt); }); currentEpisode=data.episodes?.[0]?.episode_number||1; buildSourceButtons(currentModalType,currentModalId,currentSeason,currentEpisode,currentAudioLang,currentIsAnime); }); }
+    function loadEpisodes(tvId, season){ fetch(`${API_BASE}/tv/${tvId}/season/${season}`,{headers:{'Authorization':`Bearer ${TMDB_READ_TOKEN}`}}).then(r=>r.json()).then(data=>{ const epSelect=document.getElementById('episode-select'); epSelect.innerHTML=''; if(data.episodes) data.episodes.forEach(ep=>{ let opt=document.createElement('option'); opt.value=ep.episode_number; opt.innerText=`Episode ${ep.episode_number}: ${ep.name}`; epSelect.appendChild(opt); }); currentEpisode=data.episodes?.[0]?.episode_number||1; buildSourceButtons(currentModalType,currentModalId,currentSeason,currentEpisode,currentAudioLang,currentIsAnime); }); }
     
-    function buildSourceButtons(type, id, season, episode, audioLang, isAnime){ const container=document.getElementById('source-buttons'); container.innerHTML=''; ALL_SOURCES.forEach((src,idx)=>{ const btn=document.createElement('button'); btn.className='source-btn'+(idx===currentSourceIndex?' active':''); btn.innerText=src.name; let finalUrl=''; try{ finalUrl=src.urlTemplate(type, id, season, episode, audioLang); }catch(e){ finalUrl='#'; } btn.onclick=()=>{ currentSourceIndex=idx; let newUrl=src.urlTemplate(type, id, season, episode, audioLang); document.getElementById('movie-player').src=newUrl; document.querySelectorAll('.source-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); }; container.appendChild(btn); }); if(ALL_SOURCES.length){ let defaultUrl=ALL_SOURCES[0].urlTemplate(type, id, season, episode, audioLang); document.getElementById('movie-player').src=defaultUrl; } }
+    function buildSourceButtons(type, id, season, episode, audioLang, isAnime){ 
+        const container=document.getElementById('source-buttons'); container.innerHTML=''; 
+        STREAMING_SOURCES.forEach((src,idx)=>{ const btn=document.createElement('button'); btn.className='source-btn'+(idx===currentSourceIndex?' active':''); btn.innerText=src.name; try{ btn.onclick=()=>{ currentSourceIndex=idx; let newUrl=src.urlTemplate(type, id, season, episode, audioLang); document.getElementById('movie-player').src=newUrl; document.querySelectorAll('.source-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); }; }catch(e){} container.appendChild(btn); }); 
+        if(STREAMING_SOURCES.length){ let defaultUrl=STREAMING_SOURCES[0].urlTemplate(type, id, season, episode, audioLang); document.getElementById('movie-player').src=defaultUrl; } 
+    }
     
     function updatePagination(){ document.getElementById('page-indicator').innerText=`Page ${currentPage}`; document.getElementById('prev-page').disabled=currentPage===1; document.getElementById('next-page').disabled=currentPage>=totalPages; }
     document.getElementById('prev-page').onclick=()=>{ if(currentPage>1){ currentPage--; loadGridContent(); } };
