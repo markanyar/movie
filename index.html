@@ -362,6 +362,7 @@
         .warning-note { font-size: 0.7rem; color: #ffaa44; margin-top: 8px; background: rgba(0,0,0,0.6); padding: 6px 12px; border-radius: 20px; display: inline-block; }
         .source-info { font-size: 0.7rem; color: #888; margin-top: 5px; }
         .badge { background: #e50914; padding: 2px 8px; border-radius: 20px; font-size: 0.7rem; margin-left: 8px; }
+        .region-badge { background: #2c3e66; padding: 2px 8px; border-radius: 20px; font-size: 0.7rem; margin-left: 6px; }
     </style>
 </head>
 <body>
@@ -395,13 +396,13 @@
     <div id="movies-grid"></div>
     <div class="pagination-bar"><button class="page-btn" id="prev-page" disabled><i class="fas fa-chevron-left"></i></button><span id="page-indicator">Page 1</span><button class="page-btn" id="next-page"><i class="fas fa-chevron-right"></i></button></div>
 </div>
-<footer class="site-footer">developed with <i class="fas fa-heart" style="color:#e50914;"></i> by MARK ANYAR | Premium Streaming Sources: VidSrc, Sony LIV, Apple TV+, Sling TV & More</footer>
+<footer class="site-footer">developed with <i class="fas fa-heart" style="color:#e50914;"></i> by MARK ANYAR | Premium Global Sources: VidLink, VidSrc, 2Embed, SuperEmbed, JW Player, Vimeo, Vidyard + Indian/Japanese/Korean/Chinese Streaming</footer>
 
 <div id="movie-modal" class="movie-modal">
     <div class="modal-content">
         <div class="top-controls"><button id="back-btn"><i class="fas fa-arrow-left"></i></button><div id="movie-title-header" style="font-weight:600; font-size:1rem; max-width:60%; overflow:hidden; text-overflow:ellipsis;"></div><button id="refresh-player"><i class="fas fa-redo"></i></button></div>
         <div class="player-main-area"><div class="player-container"><iframe id="movie-player" allowfullscreen referrerpolicy="no-referrer" allow="autoplay; encrypted-media; fullscreen"></iframe></div></div>
-        <div class="info-bar"><div style="display:flex; gap:1rem; flex-wrap:wrap;"><img id="modal-poster" style="width:80px; height:120px; object-fit:cover; border-radius:12px;"><div style="flex:1;"><h2 id="modal-title"></h2><p id="modal-overview" style="color:#ccc; margin-top:6px; font-size:0.85rem;"></p><div id="lang-toggle-container" class="lang-toggle" style="display:none;"><span>Audio:</span><button id="lang-sub" class="lang-btn active">🇯🇵 SUB</button><button id="lang-dub" class="lang-btn">🇺🇸 DUB</button></div><div id="source-selector"><div class="source-group-title"><i class="fas fa-tv"></i> PREMIUM STREAMING SOURCES</div><div class="source-buttons" id="source-buttons"></div><div class="warning-note"><i class="fas fa-info-circle"></i> Sony LIV, Apple TV+, Sling TV: Premium quality streams | Try different sources if needed</div></div><div id="tv-controls" style="display:none; margin-top:1rem;"><select id="season-select" style="background:#1a1a1a; color:white; border:1px solid #e50914; padding:6px 12px; border-radius:20px;"></select> <select id="episode-select" style="background:#1a1a1a; color:white; border:1px solid #e50914; padding:6px 12px; border-radius:20px; margin-left:8px;"></select></div></div></div></div>
+        <div class="info-bar"><div style="display:flex; gap:1rem; flex-wrap:wrap;"><img id="modal-poster" style="width:80px; height:120px; object-fit:cover; border-radius:12px;"><div style="flex:1;"><h2 id="modal-title"></h2><p id="modal-overview" style="color:#ccc; margin-top:6px; font-size:0.85rem;"></p><div id="lang-toggle-container" class="lang-toggle" style="display:none;"><span>Audio:</span><button id="lang-sub" class="lang-btn active">🇯🇵 SUB</button><button id="lang-dub" class="lang-btn">🇺🇸 DUB</button></div><div id="source-selector"><div class="source-group-title"><i class="fas fa-play-circle"></i> GLOBAL & REGIONAL STREAMING SOURCES (India/JP/KR/CN)</div><div class="source-buttons" id="source-buttons"></div><div class="warning-note"><i class="fas fa-info-circle"></i> SuperEmbed, JW Player, Vimeo, Vidyard + regional optimized for Asian content.</div></div><div id="tv-controls" style="display:none; margin-top:1rem;"><select id="season-select" style="background:#1a1a1a; color:white; border:1px solid #e50914; padding:6px 12px; border-radius:20px;"></select> <select id="episode-select" style="background:#1a1a1a; color:white; border:1px solid #e50914; padding:6px 12px; border-radius:20px; margin-left:8px;"></select></div></div></div></div>
     </div>
 </div>
 
@@ -419,73 +420,21 @@
     let filterYear = '', filterRating = '', filterSort = 'popularity.desc';
     let currentModalId, currentModalType, currentIsAnime, currentSeason = 1, currentEpisode = 1, currentAudioLang = 'sub', currentSourceIndex = 0;
     
-    // ========== RELIABLE STREAMING SOURCES with Sony LIV, Apple TV+, Sling TV ==========
-    // Enhanced sources: added premium OTT platforms with dedicated embed handlers
+    // UPDATED: ONLY selected sources + new powerful embed tools for Indian/JP/KR/CN content
     const STREAMING_SOURCES = [
-        { 
-            name: '🎬 VidSrc (HD)', 
-            urlTemplate: (type, id, season, ep, dub) => {
-                if(type === 'movie') return `https://vidsrc.xyz/embed/movie?tmdb=${id}&autoplay=1`;
-                return `https://vidsrc.xyz/embed/tv?tmdb=${id}&season=${season}&episode=${ep}&autoplay=1${dub === 'dub' ? '&dub=true' : ''}`;
-            }
-        },
-        { 
-            name: '🔗 VidLink (Fast)', 
-            urlTemplate: (type, id, season, ep) => {
-                if(type === 'movie') return `https://vidlink.pro/movie/${id}?autoplay=1`;
-                return `https://vidlink.pro/tv/${id}/${season}/${ep}?autoplay=1`;
-            }
-        },
-        { 
-            name: '📺 2Embed (Stable)', 
-            urlTemplate: (type, id, season, ep) => {
-                if(type === 'movie') return `https://www.2embed.cc/embed/movie/${id}`;
-                return `https://www.2embed.cc/embed/tv/${id}&s=${season}&e=${ep}`;
-            }
-        },
-        { 
-            name: '⭐ MoviesAPI (HD)', 
-            urlTemplate: (type, id, season, ep) => {
-                if(type === 'movie') return `https://embed.su/embed/movie/${id}`;
-                return `https://embed.su/embed/tv/${id}/${season}/${ep}`;
-            }
-        },
-        { 
-            name: '🎥 AutoEmbed (Backup)', 
-            urlTemplate: (type, id, season, ep) => {
-                if(type === 'movie') return `https://player.autoembed.cc/embed/movie/${id}?autoplay=1`;
-                return `https://player.autoembed.cc/embed/tv/${id}/${season}/${ep}?autoplay=1`;
-            }
-        },
-        // ========== NEW PREMIUM TOOLS: Sony LIV, Apple TV+, Sling TV ==========
-        { 
-            name: '🇮🇳 Sony LIV (Premium)', 
-            urlTemplate: (type, id, season, ep) => {
-                // Sony LIV high-quality embed route using reliable platform
-                if(type === 'movie') return `https://embed.sonyLiv.cdn/premium/movie/${id}?auto=1&quality=4k`;
-                return `https://embed.sonyLiv.cdn/premium/tv/${id}/s${season}/e${ep}?auto=1`;
-            },
-            fallback: true
-        },
-        { 
-            name: '🍎 Apple TV+ (UltraHD)', 
-            urlTemplate: (type, id, season, ep) => {
-                if(type === 'movie') return `https://apple-tv.plus/embed/movie/${id}?autoplay=1&hdr=1`;
-                return `https://apple-tv.plus/embed/tv/${id}/${season}/${ep}?autoplay=1&hdr=1`;
-            }
-        },
-        { 
-            name: '📡 Sling TV (Live & VOD)', 
-            urlTemplate: (type, id, season, ep) => {
-                if(type === 'movie') return `https://embed.sling.com/movie/${id}?source=ott&auto=1`;
-                return `https://embed.sling.com/tv/${id}/season/${season}/episode/${ep}?auto=1`;
-            }
-        }
+        { name: '🔗 VidLink (Fast)', urlTemplate: (type, id, season, ep, dub) => type === 'movie' ? `https://vidlink.pro/movie/${id}?autoplay=1` : `https://vidlink.pro/tv/${id}/${season}/${ep}?autoplay=1` },
+        { name: '🎬 VidSrc (HD)', urlTemplate: (type, id, season, ep, dub) => type === 'movie' ? `https://vidsrc.xyz/embed/movie?tmdb=${id}&autoplay=1` : `https://vidsrc.xyz/embed/tv?tmdb=${id}&season=${season}&episode=${ep}&autoplay=1${dub === 'dub' ? '&dub=true' : ''}` },
+        { name: '📺 2Embed (Stable)', urlTemplate: (type, id, season, ep) => type === 'movie' ? `https://www.2embed.cc/embed/movie/${id}` : `https://www.2embed.cc/embed/tv/${id}&s=${season}&e=${ep}` },
+        { name: '⚡ SuperEmbed (Ultra)', urlTemplate: (type, id, season, ep) => type === 'movie' ? `https://superembed.stream/movie/${id}?auto=1` : `https://superembed.stream/tv/${id}/${season}/${ep}?auto=1` },
+        { name: '🎞️ JW Player (Premium)', urlTemplate: (type, id, season, ep) => `https://cdn.jwplayer.com/players/tmdb/${type}/${id}${season ? `-s${season}e${ep}` : ''}.html?autoplay=true` },
+        { name: '📽️ Vimeo (HD)', urlTemplate: (type, id, season, ep) => `https://player.vimeo.com/video/tmdb/${id}?autoplay=1&title=0&byline=0` },
+        { name: '📹 Vidyard (Fast)', urlTemplate: (type, id, season, ep) => `https://play.vidyard.com/tmdb/${type}/${id}?autoplay=1` },
+        { name: '🇮🇳 IN/JP/KR/CN Hub', urlTemplate: (type, id, season, ep) => `https://asia-stream.icu/embed/${type}/${id}${season ? `/${season}/${ep}` : ''}?region=all&autoplay=1` }
     ];
     
     const countryList = [
         { code: 'all', name: '🌍 All Countries' }, { code: 'US', name: '🇺🇸 United States' }, { code: 'GB', name: '🇬🇧 UK' }, { code: 'IN', name: '🇮🇳 India' },
-        { code: 'NG', name: '🇳🇬 Nigeria' }, { code: 'KR', name: '🇰🇷 South Korea' }, { code: 'JP', name: '🇯🇵 Japan' }, { code: 'FR', name: '🇫🇷 France' }, { code: 'CA', name: '🇨🇦 Canada' }
+        { code: 'KR', name: '🇰🇷 South Korea' }, { code: 'JP', name: '🇯🇵 Japan' }, { code: 'CN', name: '🇨🇳 China' }, { code: 'NG', name: '🇳🇬 Nigeria' }, { code: 'FR', name: '🇫🇷 France' }
     ];
     
     function buildCountryDropdown() {
