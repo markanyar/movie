@@ -336,31 +336,145 @@
             cursor: pointer;
         }
         .page-btn:hover:not(:disabled) { background: #e50914; }
-        .movie-modal { display: none; position: fixed; inset: 0; background: #000; z-index: 2000; flex-direction: column; }
-        .modal-content { width: 100%; height: 100%; display: flex; flex-direction: column; }
-        .top-controls { padding: 0.8rem; background: #000; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; }
-        #back-btn, #refresh-player { background: #1a1a1a; border: 2px solid #e50914; color: #e50914; width: 42px; height: 42px; border-radius: 50%; cursor: pointer; }
-        .player-main-area { flex: 1; position: relative; background: #000; }
-        .player-container { width: 100%; height: 100%; }
-        #movie-player { width: 100%; height: 100%; border: none; background: #000; }
-        .info-bar { background: #0c0c0c; border-top: 1px solid #222; padding: 1rem; max-height: 40vh; overflow-y: auto; }
-        .source-buttons { display: flex; gap: 8px; flex-wrap: wrap; margin: 8px 0; }
-        .source-btn { background: #1a1a1a; border: 1px solid #e50914; color: white; padding: 8px 18px; border-radius: 40px; cursor: pointer; font-size: 0.85rem; font-weight: 600; transition: 0.2s; }
-        .source-btn:hover { background: #e50914; transform: scale(1.02); }
-        .source-btn.active { background: #e50914; box-shadow: 0 0 12px #e50914; }
+        
+        /* MODAL without IFRAME - custom video player placeholder with sources */
+        .movie-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: #000;
+            z-index: 2000;
+            flex-direction: column;
+        }
+        .modal-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        .top-controls {
+            padding: 0.8rem;
+            background: #000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #222;
+        }
+        #back-btn, #refresh-player {
+            background: #1a1a1a;
+            border: 2px solid #e50914;
+            color: #e50914;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        .player-main-area {
+            flex: 1;
+            position: relative;
+            background: #0a0a0a;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .custom-video-placeholder {
+            background: #111;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 2rem;
+        }
+        .custom-video-placeholder i {
+            font-size: 5rem;
+            color: #e50914;
+            margin-bottom: 1.5rem;
+        }
+        .video-source-list {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 20px;
+            max-width: 90%;
+        }
+        .video-source-btn {
+            background: #1f1f1f;
+            border: 1px solid #e50914;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 0.9rem;
+        }
+        .video-source-btn:hover, .video-source-btn.active-source {
+            background: #e50914;
+            transform: scale(1.02);
+            box-shadow: 0 0 12px #e50914;
+        }
+        .stream-message {
+            font-size: 1.2rem;
+            margin: 1rem 0;
+            color: #ffaa44;
+        }
+        .info-bar {
+            background: #0c0c0c;
+            border-top: 1px solid #222;
+            padding: 1rem;
+            max-height: 40vh;
+            overflow-y: auto;
+        }
         .lang-toggle { display: flex; gap: 0.5rem; align-items: center; margin-top: 10px; }
-        .lang-btn { background: #1a1a1a; border: 1px solid #444; padding: 6px 16px; border-radius: 40px; cursor: pointer; }
+        .lang-btn {
+            background: #1a1a1a;
+            border: 1px solid #444;
+            padding: 6px 16px;
+            border-radius: 40px;
+            cursor: pointer;
+        }
         .lang-btn.active { background: #e50914; color: white; }
-        .site-footer { flex-shrink: 0; background: #0a0a0a; border-top: 1px solid #222; padding: 1rem; text-align: center; color: #aaa; }
-        .source-group-title { font-size: 0.7rem; color: #ffaa44; margin-top: 6px; margin-bottom: 4px; letter-spacing: 0.5px; }
+        .site-footer {
+            flex-shrink: 0;
+            background: #0a0a0a;
+            border-top: 1px solid #222;
+            padding: 1rem;
+            text-align: center;
+            color: #aaa;
+        }
+        .warning-note {
+            font-size: 0.7rem;
+            color: #ffaa44;
+            margin-top: 8px;
+            background: rgba(0,0,0,0.6);
+            padding: 6px 12px;
+            border-radius: 20px;
+            display: inline-block;
+        }
         @media (max-width: 600px) {
             header { flex-wrap: wrap; }
             #search-container { order: 3; flex-basis: 100%; margin-top: 0.2rem; }
             .filters { top: 112px; }
             .slide-card { flex: 0 0 92%; }
         }
-        .warning-note { font-size: 0.7rem; color: #ffaa44; margin-top: 8px; background: rgba(0,0,0,0.6); padding: 6px 12px; border-radius: 20px; display: inline-block; }
-        .region-badge { background: #2c3e66; padding: 2px 8px; border-radius: 20px; font-size: 0.7rem; margin-left: 6px; }
+        .tv-controls-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+        select {
+            background: #1a1a1a;
+            color: white;
+            border: 1px solid #e50914;
+            padding: 6px 12px;
+            border-radius: 20px;
+        }
     </style>
 </head>
 <body>
@@ -394,13 +508,33 @@
     <div id="movies-grid"></div>
     <div class="pagination-bar"><button class="page-btn" id="prev-page" disabled><i class="fas fa-chevron-left"></i></button><span id="page-indicator">Page 1</span><button class="page-btn" id="next-page"><i class="fas fa-chevron-right"></i></button></div>
 </div>
-<footer class="site-footer">⚡ Premium streaming with advanced multi-source fallback & bypass tools | Bollywood, Nollywood, Global cinema</footer>
+<footer class="site-footer">⚡ Premium streaming hub | NO IFRAMES — curated video source aggregator | Bollywood, Nollywood, Global cinema</footer>
 
 <div id="movie-modal" class="movie-modal">
     <div class="modal-content">
         <div class="top-controls"><button id="back-btn"><i class="fas fa-arrow-left"></i></button><div id="movie-title-header" style="font-weight:600; font-size:1rem; max-width:60%; overflow:hidden; text-overflow:ellipsis;"></div><button id="refresh-player"><i class="fas fa-redo"></i></button></div>
-        <div class="player-main-area"><div class="player-container"><iframe id="movie-player" allowfullscreen referrerpolicy="no-referrer" allow="autoplay; encrypted-media; fullscreen"></iframe></div></div>
-        <div class="info-bar"><div style="display:flex; gap:1rem; flex-wrap:wrap;"><img id="modal-poster" style="width:80px; height:120px; object-fit:cover; border-radius:12px;"><div style="flex:1;"><h2 id="modal-title"></h2><p id="modal-overview" style="color:#ccc; margin-top:6px; font-size:0.85rem;"></p><div id="lang-toggle-container" class="lang-toggle" style="display:none;"><span>Audio:</span><button id="lang-sub" class="lang-btn active">🇯🇵 SUB</button><button id="lang-dub" class="lang-btn">🇺🇸 DUB</button></div><div id="source-selector"><div class="source-group-title"><i class="fas fa-play-circle"></i> PREMIUM STREAMING SOURCES (Auto-Fallback + Anti-Block)</div><div class="source-buttons" id="source-buttons"></div><div class="warning-note"><i class="fas fa-shield-alt"></i> Elite multi-embed chain: VidLink, Vidsrc, 2Embed, MultiEmbed, SmashyStream, AutoEmbed, DBGo, Filmxy — intelligent bypass & lowest block rate.</div></div><div id="tv-controls" style="display:none; margin-top:1rem;"><select id="season-select" style="background:#1a1a1a; color:white; border:1px solid #e50914; padding:6px 12px; border-radius:20px;"></select> <select id="episode-select" style="background:#1a1a1a; color:white; border:1px solid #e50914; padding:6px 12px; border-radius:20px; margin-left:8px;"></select></div></div></div></div>
+        <div class="player-main-area" id="playerMainArea">
+            <div class="custom-video-placeholder" id="videoPlaceholder">
+                <i class="fas fa-video"></i>
+                <div class="stream-message"><i class="fas fa-globe"></i> Premium Streaming Sources (No iframe, direct video links)</div>
+                <div id="external-source-buttons" class="video-source-list"></div>
+                <div class="warning-note" style="margin-top:20px;"><i class="fas fa-shield-alt"></i> Elite multi-source links: VidLink, Vidsrc, 2Embed, MultiEmbed, SmashyStream, AutoEmbed, DBGo, Filmxy — click any source to watch in new tab or external player. (No iframe restrictions)</div>
+            </div>
+        </div>
+        <div class="info-bar">
+            <div style="display:flex; gap:1rem; flex-wrap:wrap;">
+                <img id="modal-poster" style="width:80px; height:120px; object-fit:cover; border-radius:12px;">
+                <div style="flex:1;">
+                    <h2 id="modal-title"></h2>
+                    <p id="modal-overview" style="color:#ccc; margin-top:6px; font-size:0.85rem;"></p>
+                    <div id="lang-toggle-container" class="lang-toggle" style="display:none;"><span>Audio:</span><button id="lang-sub" class="lang-btn active">🇯🇵 SUB</button><button id="lang-dub" class="lang-btn">🇺🇸 DUB</button></div>
+                    <div id="tv-controls" style="display:none; margin-top:1rem;" class="tv-controls-group">
+                        <select id="season-select"></select>
+                        <select id="episode-select"></select>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -419,8 +553,8 @@
     let currentModalId, currentModalType, currentIsAnime, currentSeason = 1, currentEpisode = 1;
     let searchQuery = '';
     
-    // ✅ BEST STREAMING SOURCES - High reliability, minimal blocking, wide coverage
-    const PREMIUM_STREAMING_SOURCES = [
+    // DIRECT STREAMING SOURCES (no iframe, just links to open externally / redirect)
+    const PREMIUM_STREAM_SOURCES = [
         { name: 'VidLink', urlTemplate: (type, id, season, ep) => type === 'movie' ? `https://vidlink.pro/movie/${id}` : `https://vidlink.pro/tv/${id}/${season}/${ep}` },
         { name: 'VidSrc', urlTemplate: (type, id, season, ep) => type === 'movie' ? `https://vidsrc.xyz/embed/movie?tmdb=${id}` : `https://vidsrc.xyz/embed/tv?tmdb=${id}&season=${season}&episode=${ep}` },
         { name: '2Embed', urlTemplate: (type, id, season, ep) => type === 'movie' ? `https://www.2embed.cc/embed/movie/${id}` : `https://www.2embed.cc/embed/tv/${id}&s=${season}&e=${ep}` },
@@ -428,51 +562,24 @@
         { name: 'SmashyStream', urlTemplate: (type, id, season, ep) => type === 'movie' ? `https://embed.smashystream.com/playere.php?tmdb=${id}` : `https://embed.smashystream.com/playere.php?tmdb=${id}&season=${season}&episode=${ep}` },
         { name: 'AutoEmbed', urlTemplate: (type, id, season, ep) => type === 'movie' ? `https://autoembed.cc/embed/movie/${id}` : `https://autoembed.cc/embed/tv/${id}/${season}/${ep}` },
         { name: 'DBGo', urlTemplate: (type, id, season, ep) => type === 'movie' ? `https://dbgo.fun/movie/${id}` : `https://dbgo.fun/tv/${id}/${season}/${ep}` },
-        { name: 'Filmxy', urlTemplate: (type, id, season, ep) => type === 'movie' ? `https://www.filmxy.vip/embed/${id}` : `https://www.filmxy.vip/embed/${id}/${season}-${ep}` },
-        { name: 'VidStream', urlTemplate: (type, id, season, ep) => type === 'movie' ? `https://vidstream.pro/embed/${id}` : `https://vidstream.pro/embed/${id}/${season}/${ep}` },
-        { name: 'PrimeWire', urlTemplate: (type, id, season, ep) => type === 'movie' ? `https://primewire.tf/embed/movie/${id}` : `https://primewire.tf/embed/tv/${id}/${season}/${ep}` },
-        { name: 'MovieWeb', urlTemplate: (type, id, season, ep) => type === 'movie' ? `https://movieweb.cc/embed/${id}` : `https://movieweb.cc/embed/tv/${id}/${season}/${ep}` },
-        { name: 'HDMovieBox', urlTemplate: (type, id, season, ep) => type === 'movie' ? `https://hdmoviebox.net/embed/${id}` : `https://hdmoviebox.net/embed/tv/${id}/${season}/${ep}` }
+        { name: 'Filmxy', urlTemplate: (type, id, season, ep) => type === 'movie' ? `https://www.filmxy.vip/embed/${id}` : `https://www.filmxy.vip/embed/${id}/${season}-${ep}` }
     ];
     
-    let fallbackTimeout = null;
-    let currentSourceIndex = 0;
-    
-    function playWithSmartFallback(type, id, season, episode) {
-        const player = document.getElementById('movie-player');
-        if (!player) return;
-        if (fallbackTimeout) clearTimeout(fallbackTimeout);
-        currentSourceIndex = 0;
-        
-        function trySource() {
-            if (currentSourceIndex >= PREMIUM_STREAMING_SOURCES.length) {
-                player.src = "about:blank";
-                alert("⚠️ All premium sources attempted. Try another title or refresh the page.");
-                return;
-            }
-            const source = PREMIUM_STREAMING_SOURCES[currentSourceIndex];
-            let url = source.urlTemplate(type, id, season, episode);
-            player.src = url;
-            
-            // Mark active button
-            document.querySelectorAll('.source-btn').forEach((btn, idx) => {
-                if (idx === currentSourceIndex) btn.classList.add('active');
-                else btn.classList.remove('active');
-            });
-            
-            const attemptedIndex = currentSourceIndex;
-            currentSourceIndex++;
-            
-            if (fallbackTimeout) clearTimeout(fallbackTimeout);
-            fallbackTimeout = setTimeout(() => {
-                // Check if iframe still loading or blocked
-                let currentSrc = player.src;
-                if (currentSrc && currentSrc !== "about:blank" && currentSrc.includes(PREMIUM_STREAMING_SOURCES[attemptedIndex]?.name?.toLowerCase() || '')) {
-                    trySource();
-                }
-            }, 10000);
-        }
-        trySource();
+    function buildSourceButtonsForModal(type, id, season, episode) {
+        const container = document.getElementById('external-source-buttons');
+        if (!container) return;
+        container.innerHTML = '';
+        PREMIUM_STREAM_SOURCES.forEach(src => {
+            const btn = document.createElement('button');
+            btn.className = 'video-source-btn';
+            btn.innerText = src.name;
+            btn.onclick = (e) => {
+                e.preventDefault();
+                const url = src.urlTemplate(type, id, season, episode);
+                window.open(url, '_blank', 'noopener,noreferrer');
+            };
+            container.appendChild(btn);
+        });
     }
     
     function openPlayer(id, type, isAnime) {
@@ -482,7 +589,6 @@
         currentModalId = id;
         currentModalType = type;
         currentIsAnime = isAnime;
-        document.getElementById('movie-player').src = '';
         
         fetch(`${API_BASE}/${type === 'movie' ? 'movie' : 'tv'}/${id}`, { headers: { 'Authorization': `Bearer ${TMDB_READ_TOKEN}` } })
             .then(r => r.json())
@@ -497,7 +603,7 @@
         langDiv.style.display = isAnime ? 'flex' : 'none';
         
         if (type === 'tv' || isAnime) {
-            document.getElementById('tv-controls').style.display = 'block';
+            document.getElementById('tv-controls').style.display = 'flex';
             fetch(`${API_BASE}/tv/${id}`, { headers: { 'Authorization': `Bearer ${TMDB_READ_TOKEN}` } })
                 .then(r => r.json())
                 .then(data => {
@@ -514,16 +620,16 @@
                         });
                     }
                     currentSeason = data.seasons?.find(s => s.season_number > 0)?.season_number || 1;
-                    loadEpisodes(id, currentSeason);
+                    loadEpisodesForModal(id, currentSeason);
                 });
         } else {
             document.getElementById('tv-controls').style.display = 'none';
-            playWithSmartFallback(type, id, null, null);
+            buildSourceButtonsForModal(type, id, null, null);
         }
-        buildSourceButtons(type, id, currentSeason, currentEpisode);
+        buildSourceButtonsForModal(type, id, currentSeason, currentEpisode);
     }
     
-    function loadEpisodes(tvId, season) {
+    function loadEpisodesForModal(tvId, season) {
         fetch(`${API_BASE}/tv/${tvId}/season/${season}`, { headers: { 'Authorization': `Bearer ${TMDB_READ_TOKEN}` } })
             .then(r => r.json())
             .then(data => {
@@ -538,57 +644,20 @@
                     });
                 }
                 currentEpisode = data.episodes?.[0]?.episode_number || 1;
-                playWithSmartFallback(currentModalType, currentModalId, currentSeason, currentEpisode);
-                buildSourceButtons(currentModalType, currentModalId, currentSeason, currentEpisode);
+                buildSourceButtonsForModal(currentModalType, currentModalId, currentSeason, currentEpisode);
             });
     }
     
-    function buildSourceButtons(type, id, season, episode) {
-        const container = document.getElementById('source-buttons');
-        container.innerHTML = '';
-        PREMIUM_STREAMING_SOURCES.forEach((src, idx) => {
-            const btn = document.createElement('button');
-            btn.className = 'source-btn';
-            btn.innerText = src.name;
-            btn.onclick = () => {
-                if (fallbackTimeout) clearTimeout(fallbackTimeout);
-                let newUrl = src.urlTemplate(type, id, season, episode);
-                document.getElementById('movie-player').src = newUrl;
-                document.querySelectorAll('.source-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                currentSourceIndex = idx + 1;
-                fallbackTimeout = setTimeout(() => {
-                    let currentSrc = document.getElementById('movie-player').src;
-                    if (currentSrc && currentSrc !== "about:blank" && currentSrc.includes(newUrl.split('?')[0]?.substring(0, 40))) {
-                        if (currentSourceIndex < PREMIUM_STREAMING_SOURCES.length) {
-                            let nextUrl = PREMIUM_STREAMING_SOURCES[currentSourceIndex].urlTemplate(type, id, season, episode);
-                            document.getElementById('movie-player').src = nextUrl;
-                            currentSourceIndex++;
-                        }
-                    }
-                }, 12000);
-            };
-            container.appendChild(btn);
-        });
-        if(container.firstChild) container.firstChild.classList.add('active');
-    }
-    
-    // COUNTRY DROPDOWN with PRIORITY (BOLLYWOOD + NOLLYWOOD)
+    // COUNTRY DROPDOWN with BOLLYWOOD+NOLLYWOOD
     const ALL_COUNTRIES = [
         { code: 'IN', name: '🇮🇳 BOLLYWOOD / India', priority:1 }, { code: 'NG', name: '🇳🇬 NOLLYWOOD / Nigeria', priority:2 },
         { code: 'US', name: '🇺🇸 United States' }, { code: 'GB', name: '🇬🇧 United Kingdom' }, { code: 'JP', name: '🇯🇵 Japan' },
-        { code: 'KR', name: '🇰🇷 South Korea' }, { code: 'FR', name: '🇫🇷 France' }, { code: 'DE', name: '🇩🇪 Germany' },
-        { code: 'IT', name: '🇮🇹 Italy' }, { code: 'ES', name: '🇪🇸 Spain' }, { code: 'MX', name: '🇲🇽 Mexico' },
-        { code: 'BR', name: '🇧🇷 Brazil' }, { code: 'CA', name: '🇨🇦 Canada' }, { code: 'AU', name: '🇦🇺 Australia' },
-        { code: 'CN', name: '🇨🇳 China' }, { code: 'TH', name: '🇹🇭 Thailand' }, { code: 'PK', name: '🇵🇰 Pakistan' },
-        { code: 'ZA', name: '🇿🇦 South Africa' }, { code: 'GH', name: '🇬🇭 Ghana' }
+        { code: 'KR', name: '🇰🇷 South Korea' }, { code: 'FR', name: '🇫🇷 France' }, { code: 'DE', name: '🇩🇪 Germany' }
     ];
-    ALL_COUNTRIES.sort((a,b)=> (a.priority||99) - (b.priority||99));
-    
     function buildCountryDropdown() {
         const menu = document.getElementById('countryDropdownMenu');
         menu.innerHTML = '';
-        const allOption = { code: 'all', name: '🌍 All Countries', priority:0 };
+        const allOption = { code: 'all', name: '🌍 All Countries' };
         [allOption, ...ALL_COUNTRIES].forEach(c => {
             const opt = document.createElement('div'); 
             opt.className = 'country-option'; 
@@ -626,21 +695,19 @@
     document.getElementById('next-page').onclick=()=>{ if(currentPage<totalPages){ currentPage++; loadGridContent(); } };
     document.querySelectorAll('.type-btn').forEach(btn=>btn.onclick=()=>{ document.querySelectorAll('.type-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); mediaType=btn.dataset.type; activeGenreId=null; document.getElementById('selectedGenreName').innerText='All'; buildGenreDropdown(); currentPage=1; loadGridContent(); });
     document.getElementById('apply-filter').onclick=()=>{ currentPage=1; loadGridContent(); };
-    document.getElementById('back-btn').onclick=()=>{ document.getElementById('movie-player').src=''; document.getElementById('movie-modal').style.display='none'; document.body.style.overflow=''; if(fallbackTimeout) clearTimeout(fallbackTimeout); };
-    document.getElementById('refresh-player').onclick=()=>{ let p=document.getElementById('movie-player'); let src=p.src; p.src=''; setTimeout(()=>{ if(currentModalType==='tv') playWithSmartFallback(currentModalType,currentModalId,currentSeason,currentEpisode); else playWithSmartFallback(currentModalType,currentModalId,null,null); },100); };
-    document.getElementById('season-select')?.addEventListener('change',(e)=>{ currentSeason=parseInt(e.target.value); loadEpisodes(currentModalId,currentSeason); });
-    document.getElementById('episode-select')?.addEventListener('change',(e)=>{ currentEpisode=parseInt(e.target.value); playWithSmartFallback(currentModalType,currentModalId,currentSeason,currentEpisode); buildSourceButtons(currentModalType,currentModalId,currentSeason,currentEpisode); });
-    document.getElementById('lang-sub')?.addEventListener('click',()=>{ document.getElementById('lang-sub').classList.add('active'); document.getElementById('lang-dub').classList.remove('active'); playWithSmartFallback(currentModalType,currentModalId,currentSeason,currentEpisode); });
-    document.getElementById('lang-dub')?.addEventListener('click',()=>{ document.getElementById('lang-dub').classList.add('active'); document.getElementById('lang-sub').classList.remove('active'); playWithSmartFallback(currentModalType,currentModalId,currentSeason,currentEpisode); });
+    document.getElementById('back-btn').onclick=()=>{ document.getElementById('movie-modal').style.display='none'; document.body.style.overflow=''; };
+    document.getElementById('refresh-player').onclick=()=>{ if(currentModalType) buildSourceButtonsForModal(currentModalType, currentModalId, currentSeason, currentEpisode); };
+    document.getElementById('season-select')?.addEventListener('change',(e)=>{ currentSeason=parseInt(e.target.value); loadEpisodesForModal(currentModalId,currentSeason); });
+    document.getElementById('episode-select')?.addEventListener('change',(e)=>{ currentEpisode=parseInt(e.target.value); buildSourceButtonsForModal(currentModalType,currentModalId,currentSeason,currentEpisode); });
+    document.getElementById('lang-sub')?.addEventListener('click',()=>{ document.getElementById('lang-sub').classList.add('active'); document.getElementById('lang-dub').classList.remove('active'); });
+    document.getElementById('lang-dub')?.addEventListener('click',()=>{ document.getElementById('lang-dub').classList.add('active'); document.getElementById('lang-sub').classList.remove('active'); });
     document.getElementById('countryDropdownBtn').onclick=(e)=>{ e.stopPropagation(); document.getElementById('countryDropdownMenu').classList.toggle('show'); };
     document.getElementById('genreDropdownBtn').onclick=(e)=>{ e.stopPropagation(); document.getElementById('genreDropdownMenu').classList.toggle('show'); };
     document.addEventListener('click',()=>{ document.getElementById('countryDropdownMenu')?.classList.remove('show'); document.getElementById('genreDropdownMenu')?.classList.remove('show'); });
     
-    // Search functionality
     document.getElementById('search-input').addEventListener('input', (e) => {
         searchQuery = e.target.value.trim();
         if(searchQuery.length > 2) {
-            // Quick search: load from search API (simplified)
             const searchUrl = `${API_BASE}/search/${mediaType === 'movie' ? 'movie' : 'tv'}?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(searchQuery)}&page=1`;
             fetch(searchUrl, {headers:{'Authorization':`Bearer ${TMDB_READ_TOKEN}`}})
                 .then(r=>r.json())
